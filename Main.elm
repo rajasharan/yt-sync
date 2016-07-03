@@ -1,5 +1,4 @@
 import Html exposing (..)
-import Html.App as App exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import List exposing (..)
@@ -13,6 +12,7 @@ import Time exposing (..)
 import Color exposing (..)
 import Json.Decode exposing (..)
 import WebSocket exposing (..)
+import Navigation as App exposing (..)
 
 import Types exposing (..)
 import Ports exposing (..)
@@ -22,23 +22,28 @@ import Decoders exposing (..)
 main : Program Never
 main =
     App.program
+        (makeParser (\l -> l.hash))
         { init = init
         , update = update
         , subscriptions = subs
         , view = view
+        , urlUpdate = urlUpdate
         }
 
-init : (Model, Cmd Msg)
-init = ( { url = ""
-         , err = ""
-         , server = "ws://192.168.1.5:5000/"
-         , play = False
-         , total = 0.0
-         , width = 1000
-         , cursorWidth = 0.0
-         }
-       , Cmd.none
-       )
+init : String -> (Model, Cmd Msg)
+init hash = ( { url = ""
+              , err = ""
+              , server = dropLeft 1 hash
+              , play = False
+              , total = 0.0
+              , width = 1000
+              , cursorWidth = 0.0
+              }
+            , Cmd.none
+            )
+
+urlUpdate : String -> Model -> (Model, Cmd Msg)
+urlUpdate hash model = { model | server = dropLeft 1 hash } ! []
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
