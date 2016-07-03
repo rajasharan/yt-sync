@@ -10,6 +10,8 @@ import Collage exposing (..)
 import Element exposing (..)
 import Window exposing (..)
 import Time exposing (..)
+import Color exposing (..)
+import Json.Decode exposing (..)
 
 import Types exposing (..)
 import Ports exposing (..)
@@ -51,6 +53,9 @@ update msg model =
 
         cursor sec model =
             sec * (Basics.toFloat model.width) / model.total
+
+        seek pos model =
+            pos * model.total / (Basics.toFloat model.width)
     in
     case msg of
         Load url -> Debug.log "url" { model | url = getVideoId url } ! []
@@ -63,13 +68,14 @@ update msg model =
         Width w -> { model | width = w } ! []
         Resize -> model ! [ Ports.width () ]
         Tick -> model ! [ Ports.time () ]
-        PlayCursor sec -> { model | cursorWidth = cursor sec model } ! []
+        PlayCursor sec -> { model | cursorWidth = Debug.log "curWidth" <| cursor sec model } ! []
+        MoveCursor pos -> model ! [ Ports.seek <| seek pos model ]
 
 subs : Model -> Sub Msg
 subs model =
     let
         time =
-            if model.total > 0 then
+            if model.total > 0 && model.play then
                 every (500 * millisecond) (\t -> Tick)
             else
                 Sub.none
@@ -129,11 +135,17 @@ header model =
 seekbar : Model -> Html Msg
 seekbar model =
     let
-        form = rect (Basics.toFloat model.width) 20
+        form1 = rect model.cursorWidth 20
+              |> filled (rgb 200 100 50)
+        form2 = rect (Basics.toFloat model.width - model.cursorWidth) 20
                |> outlined defaultLine
+        form = rect model.cursorWidth 20
+               |> filled (rgb 200 50 50)
     in
-      div [class "seekbar"] 
-        [ collage model.width 20 [form]
+      div [ class "seekbar"
+          , on "click" (object1 MoveCursor ("offsetX" := float))
+          ] 
+        [ collage (round model.cursorWidth) 20 [form]
           |> toHtml
         ]
 

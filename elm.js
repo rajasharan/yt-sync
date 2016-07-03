@@ -12286,6 +12286,9 @@ var _rajasharan$yt_sync$Types$Model = F7(
 	function (a, b, c, d, e, f, g) {
 		return {url: a, err: b, server: c, play: d, total: e, width: f, cursorWidth: g};
 	});
+var _rajasharan$yt_sync$Types$MoveCursor = function (a) {
+	return {ctor: 'MoveCursor', _0: a};
+};
 var _rajasharan$yt_sync$Types$PlayCursor = function (a) {
 	return {ctor: 'PlayCursor', _0: a};
 };
@@ -12366,24 +12369,39 @@ var _rajasharan$yt_sync$Main$footer = function (model) {
 };
 var _rajasharan$yt_sync$Main$seekbar = function (model) {
 	var form = A2(
+		_evancz$elm_graphics$Collage$filled,
+		A3(_elm_lang$core$Color$rgb, 200, 50, 50),
+		A2(_evancz$elm_graphics$Collage$rect, model.cursorWidth, 20));
+	var form2 = A2(
 		_evancz$elm_graphics$Collage$outlined,
 		_evancz$elm_graphics$Collage$defaultLine,
 		A2(
 			_evancz$elm_graphics$Collage$rect,
-			_elm_lang$core$Basics$toFloat(model.width),
+			_elm_lang$core$Basics$toFloat(model.width) - model.cursorWidth,
 			20));
+	var form1 = A2(
+		_evancz$elm_graphics$Collage$filled,
+		A3(_elm_lang$core$Color$rgb, 200, 100, 50),
+		A2(_evancz$elm_graphics$Collage$rect, model.cursorWidth, 20));
 	return A2(
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
 			[
-				_elm_lang$html$Html_Attributes$class('seekbar')
+				_elm_lang$html$Html_Attributes$class('seekbar'),
+				A2(
+				_elm_lang$html$Html_Events$on,
+				'click',
+				A2(
+					_elm_lang$core$Json_Decode$object1,
+					_rajasharan$yt_sync$Types$MoveCursor,
+					A2(_elm_lang$core$Json_Decode_ops[':='], 'offsetX', _elm_lang$core$Json_Decode$float)))
 			]),
 		_elm_lang$core$Native_List.fromArray(
 			[
 				_evancz$elm_graphics$Element$toHtml(
 				A3(
 					_evancz$elm_graphics$Collage$collage,
-					model.width,
+					_elm_lang$core$Basics$round(model.cursorWidth),
 					20,
 					_elm_lang$core$Native_List.fromArray(
 						[form])))
@@ -12497,7 +12515,7 @@ var _rajasharan$yt_sync$Main$view = function (model) {
 			]));
 };
 var _rajasharan$yt_sync$Main$subs = function (model) {
-	var time = (_elm_lang$core$Native_Utils.cmp(model.total, 0) > 0) ? A2(
+	var time = ((_elm_lang$core$Native_Utils.cmp(model.total, 0) > 0) && model.play) ? A2(
 		_elm_lang$core$Time$every,
 		500 * _elm_lang$core$Time$millisecond,
 		function (t) {
@@ -12522,6 +12540,10 @@ var _rajasharan$yt_sync$Main$subs = function (model) {
 };
 var _rajasharan$yt_sync$Main$update = F2(
 	function (msg, model) {
+		var seek = F2(
+			function (pos, model) {
+				return (pos * model.total) / _elm_lang$core$Basics$toFloat(model.width);
+			});
 		var cursor = F2(
 			function (sec, model) {
 				return (sec * _elm_lang$core$Basics$toFloat(model.width)) / model.total;
@@ -12646,16 +12668,28 @@ var _rajasharan$yt_sync$Main$update = F2(
 							_rajasharan$yt_sync$Ports$time(
 							{ctor: '_Tuple0'})
 						]));
-			default:
+			case 'PlayCursor':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						model,
 						{
-							cursorWidth: A2(cursor, _p1._0, model)
+							cursorWidth: A2(
+								_elm_lang$core$Debug$log,
+								'curWidth',
+								A2(cursor, _p1._0, model))
 						}),
 					_elm_lang$core$Native_List.fromArray(
 						[]));
+			default:
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_rajasharan$yt_sync$Ports$seek(
+							A2(seek, _p1._0, model))
+						]));
 		}
 	});
 var _rajasharan$yt_sync$Main$init = {

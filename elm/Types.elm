@@ -24,4 +24,5 @@ type Msg = Load String
          | Resize
          | Tick
          | PlayCursor Float
+         | MoveCursor Float
 
