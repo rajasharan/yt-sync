@@ -1,0 +1,4 @@
+elm-stuff/
+*.sw*
+node_modules/
+bower_components/
