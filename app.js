@@ -1,11 +1,71 @@
- /*
-  *Youtube API : https://developers.google.com/youtube/iframe_api_reference
-  */
-(function($, win, app) {
+(function($, win) {
 
 $(function () {
 console.log('jQuery Handler');
 
+/*
+ * Elm Ports
+ */
+var app = Elm.Main.fullscreen();
+
+app.ports.play.subscribe(function() {
+    try {
+        play();
+        app.ports.played.send(time());
+    } catch (e) {
+        console.log(e);
+        app.ports.errored.send(e.toString());
+    }
+});
+
+app.ports.pause.subscribe(function() {
+    try {
+        pause();
+        app.ports.paused.send(time());
+    } catch (e) {
+        console.log(e);
+        app.ports.errored.send(e.toString());
+    }
+});
+
+app.ports.seek.subscribe(function(pos) {
+    try {
+        seek(pos);
+        app.ports.seeked.send(time());
+    } catch (e) {
+        console.log(e);
+        app.ports.errored.send(e.toString());
+    }
+});
+
+app.ports.total.subscribe(function() {
+    try {
+        app.ports.totaled.send(total());
+    } catch (e) {
+        console.log(e);
+        app.ports.errored.send(e.toString());
+    }
+});
+
+app.ports.width.subscribe(function() {
+    var w = $('.seekbar').width();
+    app.ports.seekbarWidth.send(w);
+});
+
+app.ports.time.subscribe(function() {
+    try {
+        var t = time();
+        app.ports.getTime.send(t);
+    } catch (e) {
+        console.log(e);
+        app.ports.errored.send(e.toString());
+    }
+});
+
+
+ /*
+  *Youtube API : https://developers.google.com/youtube/iframe_api_reference
+  */
 var tag = document.createElement('script');
 tag.src = "https://www.youtube.com/iframe_api";
 
@@ -25,6 +85,12 @@ function onYouTubeIframeAPIReady() {
 
 function onPlayerReady(event) {
     console.log('READY NOW');
+    try {
+        app.ports.totaled.send(total());
+    } catch (e) {
+        console.log(e);
+        app.ports.errored.send(e.toString());
+    }
 }
 
 function onPlayerStateChange(event) {

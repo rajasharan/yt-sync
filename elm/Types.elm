@@ -1,5 +1,7 @@
 module Types exposing (..)
 
+import Time exposing (Time)
+
 type alias Url = String
 type alias Model =
     { url : Url -- youtube video url
@@ -8,6 +10,7 @@ type alias Model =
     , play : Bool -- play/pause toggle
     , total : Float -- total playback time
     , width : Int -- seekbar width
+    , cursorWidth : Float
     }
 
 type Msg = Load String
@@ -19,4 +22,6 @@ type Msg = Load String
          | Total Float
          | Width Int
          | Resize
+         | Tick
+         | PlayCursor Float
 

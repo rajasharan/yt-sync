@@ -9,6 +9,7 @@ import Mouse exposing (..)
 import Collage exposing (..)
 import Element exposing (..)
 import Window exposing (..)
+import Time exposing (..)
 
 import Types exposing (..)
 import Ports exposing (..)
@@ -29,6 +30,7 @@ init = ( { url = ""
          , play = False
          , total = 0.0
          , width = 1000
+         , cursorWidth = 0.0
          }
        , Cmd.none
        )
@@ -46,20 +48,32 @@ update msg model =
                 head' ((getAt 1 <| split "v=" url) `Maybe.andThen` (\s -> getAt 0 (split "&" s)))
             else
                 url
+
+        cursor sec model =
+            sec * (Basics.toFloat model.width) / model.total
     in
     case msg of
-        Load url -> Debug.log "url" { model | url = getVideoId url } ! [ total () ]
+        Load url -> Debug.log "url" { model | url = getVideoId url } ! []
         Click -> { model | play = if model.play then False else True } ! [ if model.play then pause () else play () ]
         Error err -> { model | err = err ++ " Please reload!!!" } ! []
         Play time -> model ! []
         Pause time -> model ! []
         Seek time -> model ! []
-        Total time -> { model | total = time } ! [ Ports.width () ]
+        Total time -> Debug.log "total" { model | total = time } ! [ Ports.width () ]
         Width w -> { model | width = w } ! []
         Resize -> model ! [ Ports.width () ]
+        Tick -> model ! [ Ports.time () ]
+        PlayCursor sec -> { model | cursorWidth = cursor sec model } ! []
 
 subs : Model -> Sub Msg
 subs model =
+    let
+        time =
+            if model.total > 0 then
+                every (500 * millisecond) (\t -> Tick)
+            else
+                Sub.none
+    in
     Sub.batch
         [ errored Error
         , played Play
@@ -68,6 +82,8 @@ subs model =
         , totaled Total
         , seekbarWidth Width
         , resizes (\s -> Resize)
+        , time
+        , getTime PlayCursor
         ]
 
 view : Model -> Html Msg
@@ -84,7 +100,8 @@ view model =
             ]
     in
     div [class "container"]
-      [ header
+      [ header model
+      --, Html.span [class "help is-danger"] [Html.text model.err]
       , section [class "hero"]
           [ div [class "hero-body"]
               [ div [class "container"]
@@ -97,8 +114,8 @@ view model =
       --, footer model
       ]
 
-header : Html Msg
-header =
+header : Model -> Html Msg
+header model =
     p [class "control has-addons has-addons-centered nav nav-item"]
       [ button [class "button is-info is-large", disabled True] [Html.text "youtube link"]
       , input

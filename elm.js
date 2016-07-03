@@ -12282,10 +12282,14 @@ var _evancz$elm_graphics$Collage$ngon = F2(
 				_elm_lang$core$Native_List.range(0, m - 1)));
 	});
 
-var _rajasharan$yt_sync$Types$Model = F6(
-	function (a, b, c, d, e, f) {
-		return {url: a, err: b, server: c, play: d, total: e, width: f};
+var _rajasharan$yt_sync$Types$Model = F7(
+	function (a, b, c, d, e, f, g) {
+		return {url: a, err: b, server: c, play: d, total: e, width: f, cursorWidth: g};
 	});
+var _rajasharan$yt_sync$Types$PlayCursor = function (a) {
+	return {ctor: 'PlayCursor', _0: a};
+};
+var _rajasharan$yt_sync$Types$Tick = {ctor: 'Tick'};
 var _rajasharan$yt_sync$Types$Resize = {ctor: 'Resize'};
 var _rajasharan$yt_sync$Types$Width = function (a) {
 	return {ctor: 'Width', _0: a};
@@ -12335,12 +12339,18 @@ var _rajasharan$yt_sync$Ports$width = _elm_lang$core$Native_Platform.outgoingPor
 	function (v) {
 		return null;
 	});
+var _rajasharan$yt_sync$Ports$time = _elm_lang$core$Native_Platform.outgoingPort(
+	'time',
+	function (v) {
+		return null;
+	});
 var _rajasharan$yt_sync$Ports$played = _elm_lang$core$Native_Platform.incomingPort('played', _elm_lang$core$Json_Decode$float);
 var _rajasharan$yt_sync$Ports$paused = _elm_lang$core$Native_Platform.incomingPort('paused', _elm_lang$core$Json_Decode$float);
 var _rajasharan$yt_sync$Ports$seeked = _elm_lang$core$Native_Platform.incomingPort('seeked', _elm_lang$core$Json_Decode$float);
 var _rajasharan$yt_sync$Ports$totaled = _elm_lang$core$Native_Platform.incomingPort('totaled', _elm_lang$core$Json_Decode$float);
 var _rajasharan$yt_sync$Ports$errored = _elm_lang$core$Native_Platform.incomingPort('errored', _elm_lang$core$Json_Decode$string);
 var _rajasharan$yt_sync$Ports$seekbarWidth = _elm_lang$core$Native_Platform.incomingPort('seekbarWidth', _elm_lang$core$Json_Decode$int);
+var _rajasharan$yt_sync$Ports$getTime = _elm_lang$core$Native_Platform.incomingPort('getTime', _elm_lang$core$Json_Decode$float);
 
 var _rajasharan$yt_sync$Main$footer = function (model) {
 	return A2(
@@ -12379,37 +12389,39 @@ var _rajasharan$yt_sync$Main$seekbar = function (model) {
 						[form])))
 			]));
 };
-var _rajasharan$yt_sync$Main$header = A2(
-	_elm_lang$html$Html$p,
-	_elm_lang$core$Native_List.fromArray(
-		[
-			_elm_lang$html$Html_Attributes$class('control has-addons has-addons-centered nav nav-item')
-		]),
-	_elm_lang$core$Native_List.fromArray(
-		[
-			A2(
-			_elm_lang$html$Html$button,
-			_elm_lang$core$Native_List.fromArray(
-				[
-					_elm_lang$html$Html_Attributes$class('button is-info is-large'),
-					_elm_lang$html$Html_Attributes$disabled(true)
-				]),
-			_elm_lang$core$Native_List.fromArray(
-				[
-					_elm_lang$html$Html$text('youtube link')
-				])),
-			A2(
-			_elm_lang$html$Html$input,
-			_elm_lang$core$Native_List.fromArray(
-				[
-					_elm_lang$html$Html_Attributes$class('input is-large is-expanded'),
-					_elm_lang$html$Html_Attributes$type$('text'),
-					_elm_lang$html$Html_Attributes$placeholder('Enter youtube link'),
-					_elm_lang$html$Html_Events$onInput(_rajasharan$yt_sync$Types$Load)
-				]),
-			_elm_lang$core$Native_List.fromArray(
-				[]))
-		]));
+var _rajasharan$yt_sync$Main$header = function (model) {
+	return A2(
+		_elm_lang$html$Html$p,
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$html$Html_Attributes$class('control has-addons has-addons-centered nav nav-item')
+			]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A2(
+				_elm_lang$html$Html$button,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class('button is-info is-large'),
+						_elm_lang$html$Html_Attributes$disabled(true)
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text('youtube link')
+					])),
+				A2(
+				_elm_lang$html$Html$input,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class('input is-large is-expanded'),
+						_elm_lang$html$Html_Attributes$type$('text'),
+						_elm_lang$html$Html_Attributes$placeholder('Enter youtube link'),
+						_elm_lang$html$Html_Events$onInput(_rajasharan$yt_sync$Types$Load)
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[]))
+			]));
+};
 var _rajasharan$yt_sync$Main$view = function (model) {
 	var attrs = _elm_lang$core$Native_List.fromArray(
 		[
@@ -12437,7 +12449,7 @@ var _rajasharan$yt_sync$Main$view = function (model) {
 			]),
 		_elm_lang$core$Native_List.fromArray(
 			[
-				_rajasharan$yt_sync$Main$header,
+				_rajasharan$yt_sync$Main$header(model),
 				A2(
 				_elm_lang$html$Html$section,
 				_elm_lang$core$Native_List.fromArray(
@@ -12485,6 +12497,12 @@ var _rajasharan$yt_sync$Main$view = function (model) {
 			]));
 };
 var _rajasharan$yt_sync$Main$subs = function (model) {
+	var time = (_elm_lang$core$Native_Utils.cmp(model.total, 0) > 0) ? A2(
+		_elm_lang$core$Time$every,
+		500 * _elm_lang$core$Time$millisecond,
+		function (t) {
+			return _rajasharan$yt_sync$Types$Tick;
+		}) : _elm_lang$core$Platform_Sub$none;
 	return _elm_lang$core$Platform_Sub$batch(
 		_elm_lang$core$Native_List.fromArray(
 			[
@@ -12497,11 +12515,17 @@ var _rajasharan$yt_sync$Main$subs = function (model) {
 				_elm_lang$window$Window$resizes(
 				function (s) {
 					return _rajasharan$yt_sync$Types$Resize;
-				})
+				}),
+				time,
+				_rajasharan$yt_sync$Ports$getTime(_rajasharan$yt_sync$Types$PlayCursor)
 			]));
 };
 var _rajasharan$yt_sync$Main$update = F2(
 	function (msg, model) {
+		var cursor = F2(
+			function (sec, model) {
+				return (sec * _elm_lang$core$Basics$toFloat(model.width)) / model.total;
+			});
 		var head$ = function (maybe) {
 			var _p0 = maybe;
 			if (_p0.ctor === 'Just') {
@@ -12539,10 +12563,7 @@ var _rajasharan$yt_sync$Main$update = F2(
 								url: getVideoId(_p1._0)
 							})),
 					_elm_lang$core$Native_List.fromArray(
-						[
-							_rajasharan$yt_sync$Ports$total(
-							{ctor: '_Tuple0'})
-						]));
+						[]));
 			case 'Click':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -12588,9 +12609,12 @@ var _rajasharan$yt_sync$Main$update = F2(
 			case 'Total':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
-					_elm_lang$core$Native_Utils.update(
-						model,
-						{total: _p1._0}),
+					A2(
+						_elm_lang$core$Debug$log,
+						'total',
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{total: _p1._0})),
 					_elm_lang$core$Native_List.fromArray(
 						[
 							_rajasharan$yt_sync$Ports$width(
@@ -12604,7 +12628,7 @@ var _rajasharan$yt_sync$Main$update = F2(
 						{width: _p1._0}),
 					_elm_lang$core$Native_List.fromArray(
 						[]));
-			default:
+			case 'Resize':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					model,
@@ -12613,11 +12637,30 @@ var _rajasharan$yt_sync$Main$update = F2(
 							_rajasharan$yt_sync$Ports$width(
 							{ctor: '_Tuple0'})
 						]));
+			case 'Tick':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_rajasharan$yt_sync$Ports$time(
+							{ctor: '_Tuple0'})
+						]));
+			default:
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{
+							cursorWidth: A2(cursor, _p1._0, model)
+						}),
+					_elm_lang$core$Native_List.fromArray(
+						[]));
 		}
 	});
 var _rajasharan$yt_sync$Main$init = {
 	ctor: '_Tuple2',
-	_0: {url: '', err: '', server: '', play: false, total: 0.0, width: 1000},
+	_0: {url: '', err: '', server: '', play: false, total: 0.0, width: 1000, cursorWidth: 0.0},
 	_1: _elm_lang$core$Platform_Cmd$none
 };
 var _rajasharan$yt_sync$Main$main = {

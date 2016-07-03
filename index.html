@@ -33,52 +33,6 @@
         <script src="app.js"></script>
     </head>
     <body>
-        <script>
-            var app = Elm.Main.fullscreen();
-            app.ports.play.subscribe(function() {
-                try {
-                    play();
-                    app.ports.played.send(time());
-                } catch (e) {
-                    console.log(e);
-                    app.ports.errored.send(e.toString());
-                }
-            });
-
-            app.ports.pause.subscribe(function() {
-                try {
-                    pause();
-                    app.ports.paused.send(time());
-                } catch (e) {
-                    console.log(e);
-                    app.ports.errored.send(e.toString());
-                }
-            });
-
-            app.ports.seek.subscribe(function(pos) {
-                try {
-                    seek(pos);
-                    app.ports.seeked.send(time());
-                } catch (e) {
-                    console.log(e);
-                    app.ports.errored.send(e.toString());
-                }
-            });
-
-            app.ports.total.subscribe(function() {
-                try {
-                    app.ports.totaled.send(total());
-                } catch (e) {
-                    console.log(e);
-                    app.ports.errored.send(e.toString());
-                }
-            });
-
-            app.ports.width.subscribe(function() {
-                var w = $('.seekbar').width();
-                app.ports.seekbarWidth.send(w);
-            });
-        </script>
     </body>
 
 </html>
