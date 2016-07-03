@@ -23,6 +23,9 @@
             iframe {
                 pointer-events: none;
             }
+            .hero-body {
+                padding: 0px;
+            }
         </style>
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
@@ -69,6 +72,11 @@
                     console.log(e);
                     app.ports.errored.send(e.toString());
                 }
+            });
+
+            app.ports.width.subscribe(function() {
+                var w = $('.seekbar').width();
+                app.ports.seekbarWidth.send(w);
             });
         </script>
     </body>

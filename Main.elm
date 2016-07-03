@@ -6,6 +6,9 @@ import List exposing (..)
 import List.Extra exposing (..)
 import String exposing (..)
 import Mouse exposing (..)
+import Collage exposing (..)
+import Element exposing (..)
+import Window exposing (..)
 
 import Types exposing (..)
 import Ports exposing (..)
@@ -25,6 +28,7 @@ init = ( { url = ""
          , server = ""
          , play = False
          , total = 0.0
+         , width = 1000
          }
        , Cmd.none
        )
@@ -50,7 +54,9 @@ update msg model =
         Play time -> model ! []
         Pause time -> model ! []
         Seek time -> model ! []
-        Total time -> { model | total = time } ! []
+        Total time -> { model | total = time } ! [ Ports.width () ]
+        Width w -> { model | width = w } ! []
+        Resize -> model ! [ Ports.width () ]
 
 subs : Model -> Sub Msg
 subs model =
@@ -60,6 +66,8 @@ subs model =
         , paused Pause
         , seeked Seek
         , totaled Total
+        , seekbarWidth Width
+        , resizes (\s -> Resize)
         ]
 
 view : Model -> Html Msg
@@ -85,13 +93,14 @@ view model =
                   ]
               ]
           ]
+        , seekbar model
       --, footer model
       ]
 
 header : Html Msg
 header =
     p [class "control has-addons has-addons-centered nav nav-item"]
-      [ button [class "button is-info is-large", disabled True] [text "youtube link"]
+      [ button [class "button is-info is-large", disabled True] [Html.text "youtube link"]
       , input
           [ class "input is-large is-expanded"
           , type' "text"
@@ -100,6 +109,17 @@ header =
           ] []
       ]
 
+seekbar : Model -> Html Msg
+seekbar model =
+    let
+        form = rect (Basics.toFloat model.width) 20
+               |> outlined defaultLine
+    in
+      div [class "seekbar"] 
+        [ collage model.width 20 [form]
+          |> toHtml
+        ]
+
 footer : Model -> Html Msg
 footer model =
-    p [class "nav nav-item"] [text model.url]
+    p [class "nav nav-item"] [Html.text model.url]
