@@ -25,6 +25,7 @@ type Msg = Load String
          | Tick
          | CheckCursor Float
          | MoveCursor Float
+         | Listen String
 
 type alias SocketMsg =
     { kind : SocketKind
@@ -33,4 +34,4 @@ type alias SocketMsg =
     , seek : Float
     }
 
-type SocketKind = LoadVideo | PlayPause | SeekPosition
+type SocketKind = Connection | LoadVideo | PlayPause | SeekPosition

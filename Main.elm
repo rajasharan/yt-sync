@@ -17,6 +17,7 @@ import WebSocket exposing (..)
 import Types exposing (..)
 import Ports exposing (..)
 import Encoders exposing (..)
+import Decoders exposing (..)
 
 main : Program Never
 main =
@@ -30,7 +31,7 @@ main =
 init : (Model, Cmd Msg)
 init = ( { url = ""
          , err = ""
-         , server = "ws://localhost:5000/"
+         , server = "ws://192.168.1.5:5000/"
          , play = False
          , total = 0.0
          , width = 1000
@@ -102,6 +103,8 @@ update msg model =
                               |> send model.server
                           ]
 
+        Listen str -> decodeSocketMsg str model
+
 subs : Model -> Sub Msg
 subs model =
     let
@@ -121,6 +124,7 @@ subs model =
         , resizes (\s -> Resize)
         , times
         , getTime CheckCursor
+        , listen model.server Listen
         ]
 
 view : Model -> Html Msg
