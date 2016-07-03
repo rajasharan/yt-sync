@@ -12,9 +12,11 @@ import Window exposing (..)
 import Time exposing (..)
 import Color exposing (..)
 import Json.Decode exposing (..)
+import WebSocket exposing (..)
 
 import Types exposing (..)
 import Ports exposing (..)
+import Encoders exposing (..)
 
 main : Program Never
 main =
@@ -28,7 +30,7 @@ main =
 init : (Model, Cmd Msg)
 init = ( { url = ""
          , err = ""
-         , server = ""
+         , server = "ws://localhost:5000/"
          , play = False
          , total = 0.0
          , width = 1000
@@ -58,8 +60,27 @@ update msg model =
             pos * model.total / (Basics.toFloat model.width)
     in
     case msg of
-        Load url -> Debug.log "url" { model | url = getVideoId url } ! []
-        Click -> { model | play = if model.play then False else True } ! [ if model.play then pause () else play () ]
+        Load url -> Debug.log "url" { model | url = getVideoId url, err = "" }
+                  ! [ encodeSocketMsg
+                        { kind = LoadVideo
+                        , url = url
+                        , play = model.play
+                        , seek = model.cursorWidth
+                        }
+                        |> send model.server
+                    ]
+
+        TogglePlay -> { model | play = not model.play }
+                    ! [ if model.play then pause () else play ()
+                      , encodeSocketMsg
+                          { kind = PlayPause
+                          , url = model.url
+                          , play = model.play
+                          , seek = model.cursorWidth
+                          }
+                          |> send model.server
+                      ]
+
         Error err -> { model | err = err ++ " Please reload!!!" } ! []
         Play time -> model ! []
         Pause time -> model ! []
@@ -68,13 +89,23 @@ update msg model =
         Width w -> { model | width = w } ! []
         Resize -> model ! [ Ports.width (), Ports.time () ]
         Tick -> model ! [ Ports.time () ]
-        PlayCursor sec -> { model | cursorWidth = cursor sec model } ! []
-        MoveCursor pos -> { model | cursorWidth = pos } ! [ Ports.seek <| seek pos model ]
+        CheckCursor sec -> { model | cursorWidth = cursor sec model } ! []
+
+        MoveCursor pos -> { model | cursorWidth = pos }
+                        ! [ Ports.seek <| seek pos model
+                          , encodeSocketMsg
+                              { kind = SeekPosition
+                              , url = model.url
+                              , play = model.play
+                              , seek = pos
+                              }
+                              |> send model.server
+                          ]
 
 subs : Model -> Sub Msg
 subs model =
     let
-        time =
+        times =
             if model.total > 0 && model.play then
                 every (500 * millisecond) (\t -> Tick)
             else
@@ -88,8 +119,8 @@ subs model =
         , totaled Total
         , seekbarWidth Width
         , resizes (\s -> Resize)
-        , time
-        , getTime PlayCursor
+        , times
+        , getTime CheckCursor
         ]
 
 view : Model -> Html Msg
@@ -107,11 +138,11 @@ view model =
     in
     div [class "container"]
       [ header model
-      --, Html.span [class "help is-danger"] [Html.text model.err]
+      , Html.span [class "help is-danger"] [Html.text model.err]
       , section [class "hero"]
           [ div [class "hero-body"]
               [ div [class "container"]
-                  [ div [id "video-wrapper", class "video-wrapper", onClick Click]
+                  [ div [id "video-wrapper", class "video-wrapper", onClick TogglePlay]
                       [ iframe attrs [] ]
                   ]
               ]

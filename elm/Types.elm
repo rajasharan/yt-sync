@@ -10,11 +10,11 @@ type alias Model =
     , play : Bool -- play/pause toggle
     , total : Float -- total playback time
     , width : Int -- seekbar width
-    , cursorWidth : Float
+    , cursorWidth : Float -- playback cursor position
     }
 
 type Msg = Load String
-         | Click
+         | TogglePlay
          | Error String
          | Play Float
          | Pause Float
@@ -23,6 +23,14 @@ type Msg = Load String
          | Width Int
          | Resize
          | Tick
-         | PlayCursor Float
+         | CheckCursor Float
          | MoveCursor Float
 
+type alias SocketMsg =
+    { kind : SocketKind
+    , url : Url
+    , play : Bool
+    , seek : Float
+    }
+
+type SocketKind = LoadVideo | PlayPause | SeekPosition
