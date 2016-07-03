@@ -12657,6 +12657,8 @@ var _rajasharan$yt_sync$Main$update = F2(
 					_elm_lang$core$Native_List.fromArray(
 						[
 							_rajasharan$yt_sync$Ports$width(
+							{ctor: '_Tuple0'}),
+							_rajasharan$yt_sync$Ports$time(
 							{ctor: '_Tuple0'})
 						]));
 			case 'Tick':
@@ -12674,21 +12676,21 @@ var _rajasharan$yt_sync$Main$update = F2(
 					_elm_lang$core$Native_Utils.update(
 						model,
 						{
-							cursorWidth: A2(
-								_elm_lang$core$Debug$log,
-								'curWidth',
-								A2(cursor, _p1._0, model))
+							cursorWidth: A2(cursor, _p1._0, model)
 						}),
 					_elm_lang$core$Native_List.fromArray(
 						[]));
 			default:
+				var _p2 = _p1._0;
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
-					model,
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{cursorWidth: _p2}),
 					_elm_lang$core$Native_List.fromArray(
 						[
 							_rajasharan$yt_sync$Ports$seek(
-							A2(seek, _p1._0, model))
+							A2(seek, _p2, model))
 						]));
 		}
 	});

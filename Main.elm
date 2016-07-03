@@ -66,10 +66,10 @@ update msg model =
         Seek time -> model ! []
         Total time -> Debug.log "total" { model | total = time } ! [ Ports.width () ]
         Width w -> { model | width = w } ! []
-        Resize -> model ! [ Ports.width () ]
+        Resize -> model ! [ Ports.width (), Ports.time () ]
         Tick -> model ! [ Ports.time () ]
-        PlayCursor sec -> { model | cursorWidth = Debug.log "curWidth" <| cursor sec model } ! []
-        MoveCursor pos -> model ! [ Ports.seek <| seek pos model ]
+        PlayCursor sec -> { model | cursorWidth = cursor sec model } ! []
+        MoveCursor pos -> { model | cursorWidth = pos } ! [ Ports.seek <| seek pos model ]
 
 subs : Model -> Sub Msg
 subs model =
