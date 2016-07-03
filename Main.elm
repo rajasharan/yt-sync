@@ -6,6 +6,8 @@ import List exposing (..)
 import List.Extra exposing (..)
 import String exposing (..)
 import Mouse exposing (..)
+
+import Types exposing (..)
 import Ports exposing (..)
 
 main : Program Never
@@ -16,23 +18,6 @@ main =
         , subscriptions = subs
         , view = view
         }
-
-type alias Url = String
-type alias Model =
-    { url : Url
-    , err : String
-    , server : String
-    , play : Bool
-    , total : Float
-    }
-
-type Msg = Load String
-         | Click
-         | Err String
-         | Play Float
-         | Pause Float
-         | Seek Float
-         | Total Float
 
 init : (Model, Cmd Msg)
 init = ( { url = ""
@@ -61,7 +46,7 @@ update msg model =
     case msg of
         Load url -> Debug.log "url" { model | url = getVideoId url } ! [ total () ]
         Click -> { model | play = if model.play then False else True } ! [ if model.play then pause () else play () ]
-        Err err -> { model | err = err ++ " Please reload!!!" } ! []
+        Error err -> { model | err = err ++ " Please reload!!!" } ! []
         Play time -> model ! []
         Pause time -> model ! []
         Seek time -> model ! []
@@ -70,7 +55,7 @@ update msg model =
 subs : Model -> Sub Msg
 subs model =
     Sub.batch
-        [ errored Err
+        [ errored Error
         , played Play
         , paused Pause
         , seeked Seek

@@ -4,7 +4,7 @@
     "repository": "https://github.com/rajasharan/yt-sync.git",
     "license": "MIT",
     "source-directories": [
-        "."
+        "elm"
     ],
     "exposed-modules": [],
     "dependencies": {
