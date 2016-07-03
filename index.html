@@ -64,8 +64,7 @@
 
             app.ports.total.subscribe(function() {
                 try {
-                    total();
-                    app.ports.seeked.send(time());
+                    app.ports.totaled.send(total());
                 } catch (e) {
                     console.log(e);
                     app.ports.errored.send(e.toString());
