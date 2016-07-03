@@ -9464,6 +9464,32 @@ var _elm_lang$mouse$Mouse$subMap = F2(
 	});
 _elm_lang$core$Native_Platform.effectManagers['Mouse'] = {pkg: 'elm-lang/mouse', init: _elm_lang$mouse$Mouse$init, onEffects: _elm_lang$mouse$Mouse$onEffects, onSelfMsg: _elm_lang$mouse$Mouse$onSelfMsg, tag: 'sub', subMap: _elm_lang$mouse$Mouse$subMap};
 
+var _rajasharan$yt_sync$Ports$play = _elm_lang$core$Native_Platform.outgoingPort(
+	'play',
+	function (v) {
+		return null;
+	});
+var _rajasharan$yt_sync$Ports$pause = _elm_lang$core$Native_Platform.outgoingPort(
+	'pause',
+	function (v) {
+		return null;
+	});
+var _rajasharan$yt_sync$Ports$seek = _elm_lang$core$Native_Platform.outgoingPort(
+	'seek',
+	function (v) {
+		return v;
+	});
+var _rajasharan$yt_sync$Ports$total = _elm_lang$core$Native_Platform.outgoingPort(
+	'total',
+	function (v) {
+		return null;
+	});
+var _rajasharan$yt_sync$Ports$played = _elm_lang$core$Native_Platform.incomingPort('played', _elm_lang$core$Json_Decode$float);
+var _rajasharan$yt_sync$Ports$paused = _elm_lang$core$Native_Platform.incomingPort('paused', _elm_lang$core$Json_Decode$float);
+var _rajasharan$yt_sync$Ports$seeked = _elm_lang$core$Native_Platform.incomingPort('seeked', _elm_lang$core$Json_Decode$float);
+var _rajasharan$yt_sync$Ports$totaled = _elm_lang$core$Native_Platform.incomingPort('totaled', _elm_lang$core$Json_Decode$float);
+var _rajasharan$yt_sync$Ports$errored = _elm_lang$core$Native_Platform.incomingPort('errored', _elm_lang$core$Json_Decode$string);
+
 var _rajasharan$yt_sync$Main$footer = function (model) {
 	return A2(
 		_elm_lang$html$Html$p,
@@ -9473,13 +9499,8 @@ var _rajasharan$yt_sync$Main$footer = function (model) {
 			]),
 		_elm_lang$core$Native_List.fromArray(
 			[
-				_elm_lang$html$Html$text(model)
+				_elm_lang$html$Html$text(model.url)
 			]));
-};
-var _rajasharan$yt_sync$Main$subs = function (model) {
-	return _elm_lang$core$Platform_Sub$batch(
-		_elm_lang$core$Native_List.fromArray(
-			[]));
 };
 var _rajasharan$yt_sync$Main$update = F2(
 	function (msg, model) {
@@ -9507,27 +9528,113 @@ var _rajasharan$yt_sync$Main$update = F2(
 					})) : url;
 		};
 		var _p1 = msg;
-		if (_p1.ctor === 'OnInput') {
-			return A2(
-				_elm_lang$core$Platform_Cmd_ops['!'],
-				A2(
-					_elm_lang$core$Debug$log,
-					'url',
-					getVideoId(_p1._0)),
-				_elm_lang$core$Native_List.fromArray(
-					[]));
-		} else {
-			return A2(
-				_elm_lang$core$Platform_Cmd_ops['!'],
-				A2(_elm_lang$core$Debug$log, 'click', model),
-				_elm_lang$core$Native_List.fromArray(
-					[]));
+		switch (_p1.ctor) {
+			case 'Load':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					A2(
+						_elm_lang$core$Debug$log,
+						'url',
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{
+								url: getVideoId(_p1._0)
+							})),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_rajasharan$yt_sync$Ports$total(
+							{ctor: '_Tuple0'})
+						]));
+			case 'Click':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{
+							play: model.play ? false : true
+						}),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							model.play ? _rajasharan$yt_sync$Ports$pause(
+							{ctor: '_Tuple0'}) : _rajasharan$yt_sync$Ports$play(
+							{ctor: '_Tuple0'})
+						]));
+			case 'Err':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{
+							err: A2(_elm_lang$core$Basics_ops['++'], _p1._0, ' Please reload!!!')
+						}),
+					_elm_lang$core$Native_List.fromArray(
+						[]));
+			case 'Play':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
+					_elm_lang$core$Native_List.fromArray(
+						[]));
+			case 'Pause':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
+					_elm_lang$core$Native_List.fromArray(
+						[]));
+			case 'Seek':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
+					_elm_lang$core$Native_List.fromArray(
+						[]));
+			default:
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{total: _p1._0}),
+					_elm_lang$core$Native_List.fromArray(
+						[]));
 		}
 	});
-var _rajasharan$yt_sync$Main$init = {ctor: '_Tuple2', _0: '', _1: _elm_lang$core$Platform_Cmd$none};
+var _rajasharan$yt_sync$Main$init = {
+	ctor: '_Tuple2',
+	_0: {url: '', err: '', server: '', play: false, total: 0.0},
+	_1: _elm_lang$core$Platform_Cmd$none
+};
+var _rajasharan$yt_sync$Main$Model = F5(
+	function (a, b, c, d, e) {
+		return {url: a, err: b, server: c, play: d, total: e};
+	});
+var _rajasharan$yt_sync$Main$Total = function (a) {
+	return {ctor: 'Total', _0: a};
+};
+var _rajasharan$yt_sync$Main$Seek = function (a) {
+	return {ctor: 'Seek', _0: a};
+};
+var _rajasharan$yt_sync$Main$Pause = function (a) {
+	return {ctor: 'Pause', _0: a};
+};
+var _rajasharan$yt_sync$Main$Play = function (a) {
+	return {ctor: 'Play', _0: a};
+};
+var _rajasharan$yt_sync$Main$Err = function (a) {
+	return {ctor: 'Err', _0: a};
+};
+var _rajasharan$yt_sync$Main$subs = function (model) {
+	return _elm_lang$core$Platform_Sub$batch(
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_rajasharan$yt_sync$Ports$errored(_rajasharan$yt_sync$Main$Err),
+				_rajasharan$yt_sync$Ports$played(_rajasharan$yt_sync$Main$Play),
+				_rajasharan$yt_sync$Ports$paused(_rajasharan$yt_sync$Main$Pause),
+				_rajasharan$yt_sync$Ports$seeked(_rajasharan$yt_sync$Main$Seek),
+				_rajasharan$yt_sync$Ports$totaled(_rajasharan$yt_sync$Main$Total)
+			]));
+};
 var _rajasharan$yt_sync$Main$Click = {ctor: 'Click'};
-var _rajasharan$yt_sync$Main$OnInput = function (a) {
-	return {ctor: 'OnInput', _0: a};
+var _rajasharan$yt_sync$Main$Load = function (a) {
+	return {ctor: 'Load', _0: a};
 };
 var _rajasharan$yt_sync$Main$header = A2(
 	_elm_lang$html$Html$p,
@@ -9555,7 +9662,7 @@ var _rajasharan$yt_sync$Main$header = A2(
 					_elm_lang$html$Html_Attributes$class('input is-large is-expanded'),
 					_elm_lang$html$Html_Attributes$type$('text'),
 					_elm_lang$html$Html_Attributes$placeholder('Enter youtube link'),
-					_elm_lang$html$Html_Events$onInput(_rajasharan$yt_sync$Main$OnInput)
+					_elm_lang$html$Html_Events$onInput(_rajasharan$yt_sync$Main$Load)
 				]),
 			_elm_lang$core$Native_List.fromArray(
 				[]))
@@ -9569,7 +9676,7 @@ var _rajasharan$yt_sync$Main$view = function (model) {
 				'https://www.youtube.com/embed/',
 				A2(
 					_elm_lang$core$Basics_ops['++'],
-					model,
+					model.url,
 					A2(
 						_elm_lang$core$Basics_ops['++'],
 						'?enablejsapi=1',
@@ -9616,6 +9723,7 @@ var _rajasharan$yt_sync$Main$view = function (model) {
 										_elm_lang$html$Html$div,
 										_elm_lang$core$Native_List.fromArray(
 											[
+												_elm_lang$html$Html_Attributes$id('video-wrapper'),
 												_elm_lang$html$Html_Attributes$class('video-wrapper'),
 												_elm_lang$html$Html_Events$onClick(_rajasharan$yt_sync$Main$Click)
 											]),

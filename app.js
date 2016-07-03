@@ -1,14 +1,20 @@
  /*
   *Youtube API : https://developers.google.com/youtube/iframe_api_reference
   */
-(function($, win) {
+(function($, win, app) {
 
 $(function () {
-    console.log('jQuery Handler');
+console.log('jQuery Handler');
+
+var tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
 var player;
 function onYouTubeIframeAPIReady() {
-    console.log('AutoCall');
+    console.log('BUILDING YOUTUBE FRAME');
     player = new YT.Player('iframe', {
         events: {
             'onReady': onPlayerReady,
@@ -19,23 +25,10 @@ function onYouTubeIframeAPIReady() {
 
 function onPlayerReady(event) {
     console.log('READY NOW');
-    player = event.target;
-    document.getElementById('iframe').style.borderColor = '#DD2C00';
 }
 
 function onPlayerStateChange(event) {
     console.log('STATE', event.data);
-    var status = event.data;
-    var color;
-    if (status == 1) {
-        color = "#33691E";
-    } else {
-        color = "#DD2C00";
-    }
-
-    if (color) {
-        document.getElementById('iframe').style.borderColor = color;
-    }
 }
 
 function play() {
@@ -58,12 +51,17 @@ function load(id) {
     player.loadVideoById(id);
 }
 
+function total() {
+    return player.getDuration();
+}
+
+win.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
 win.play = play;
 win.pause = pause;
 win.seek = seek;
 win.time = time;
 win.load = load;
-win.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
+win.total = total;
 
 });
 

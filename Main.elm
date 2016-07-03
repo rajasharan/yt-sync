@@ -6,6 +6,7 @@ import List exposing (..)
 import List.Extra exposing (..)
 import String exposing (..)
 import Mouse exposing (..)
+import Ports exposing (..)
 
 main : Program Never
 main =
@@ -17,13 +18,31 @@ main =
         }
 
 type alias Url = String
-type alias Model = Url
+type alias Model =
+    { url : Url
+    , err : String
+    , server : String
+    , play : Bool
+    , total : Float
+    }
 
-type Msg = OnInput String
+type Msg = Load String
          | Click
+         | Err String
+         | Play Float
+         | Pause Float
+         | Seek Float
+         | Total Float
 
 init : (Model, Cmd Msg)
-init = ("", Cmd.none)
+init = ( { url = ""
+         , err = ""
+         , server = ""
+         , play = False
+         , total = 0.0
+         }
+       , Cmd.none
+       )
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -40,19 +59,30 @@ update msg model =
                 url
     in
     case msg of
-        OnInput url -> Debug.log "url" (getVideoId url) ! []
-        Click -> Debug.log "click" model ! []
+        Load url -> Debug.log "url" { model | url = getVideoId url } ! [ total () ]
+        Click -> { model | play = if model.play then False else True } ! [ if model.play then pause () else play () ]
+        Err err -> { model | err = err ++ " Please reload!!!" } ! []
+        Play time -> model ! []
+        Pause time -> model ! []
+        Seek time -> model ! []
+        Total time -> { model | total = time } ! []
 
 subs : Model -> Sub Msg
 subs model =
-    Sub.batch []
+    Sub.batch
+        [ errored Err
+        , played Play
+        , paused Pause
+        , seeked Seek
+        , totaled Total
+        ]
 
 view : Model -> Html Msg
 view model =
     let
         attrs =
             [ src <| "https://www.youtube.com/embed/"
-                  ++ model
+                  ++ model.url
                   ++ "?enablejsapi=1"
                   ++ "&controls=0"
                   ++ "&fs=1"
@@ -65,7 +95,7 @@ view model =
       , section [class "hero"]
           [ div [class "hero-body"]
               [ div [class "container"]
-                  [ div [class "video-wrapper", onClick Click]
+                  [ div [id "video-wrapper", class "video-wrapper", onClick Click]
                       [ iframe attrs [] ]
                   ]
               ]
@@ -81,10 +111,10 @@ header =
           [ class "input is-large is-expanded"
           , type' "text"
           , placeholder "Enter youtube link"
-          , onInput OnInput
+          , onInput Load
           ] []
       ]
 
 footer : Model -> Html Msg
 footer model =
-    p [class "nav nav-item"] [text model]
+    p [class "nav nav-item"] [text model.url]
