@@ -1,4 +1,4 @@
-module Encoders exposing (..)
+module Encoders exposing (encodeSocketMsg)
 
 import Json.Encode as Json exposing (..)
 import Types exposing (..)

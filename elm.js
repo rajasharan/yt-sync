@@ -9583,188 +9583,6 @@ var _elm_lang$html$Html_Events$Options = F2(
 		return {stopPropagation: a, preventDefault: b};
 	});
 
-var _elm_lang$mouse$Mouse$onSelfMsg = F3(
-	function (router, _p0, state) {
-		var _p1 = _p0;
-		var _p2 = A2(_elm_lang$core$Dict$get, _p1.category, state);
-		if (_p2.ctor === 'Nothing') {
-			return _elm_lang$core$Task$succeed(state);
-		} else {
-			var send = function (tagger) {
-				return A2(
-					_elm_lang$core$Platform$sendToApp,
-					router,
-					tagger(_p1.position));
-			};
-			return A2(
-				_elm_lang$core$Task$andThen,
-				_elm_lang$core$Task$sequence(
-					A2(_elm_lang$core$List$map, send, _p2._0.taggers)),
-				function (_p3) {
-					return _elm_lang$core$Task$succeed(state);
-				});
-		}
-	});
-var _elm_lang$mouse$Mouse_ops = _elm_lang$mouse$Mouse_ops || {};
-_elm_lang$mouse$Mouse_ops['&>'] = F2(
-	function (t1, t2) {
-		return A2(
-			_elm_lang$core$Task$andThen,
-			t1,
-			function (_p4) {
-				return t2;
-			});
-	});
-var _elm_lang$mouse$Mouse$init = _elm_lang$core$Task$succeed(_elm_lang$core$Dict$empty);
-var _elm_lang$mouse$Mouse$categorizeHelpHelp = F2(
-	function (value, maybeValues) {
-		var _p5 = maybeValues;
-		if (_p5.ctor === 'Nothing') {
-			return _elm_lang$core$Maybe$Just(
-				_elm_lang$core$Native_List.fromArray(
-					[value]));
-		} else {
-			return _elm_lang$core$Maybe$Just(
-				A2(_elm_lang$core$List_ops['::'], value, _p5._0));
-		}
-	});
-var _elm_lang$mouse$Mouse$categorizeHelp = F2(
-	function (subs, subDict) {
-		categorizeHelp:
-		while (true) {
-			var _p6 = subs;
-			if (_p6.ctor === '[]') {
-				return subDict;
-			} else {
-				var _v4 = _p6._1,
-					_v5 = A3(
-					_elm_lang$core$Dict$update,
-					_p6._0._0,
-					_elm_lang$mouse$Mouse$categorizeHelpHelp(_p6._0._1),
-					subDict);
-				subs = _v4;
-				subDict = _v5;
-				continue categorizeHelp;
-			}
-		}
-	});
-var _elm_lang$mouse$Mouse$categorize = function (subs) {
-	return A2(_elm_lang$mouse$Mouse$categorizeHelp, subs, _elm_lang$core$Dict$empty);
-};
-var _elm_lang$mouse$Mouse$subscription = _elm_lang$core$Native_Platform.leaf('Mouse');
-var _elm_lang$mouse$Mouse$Position = F2(
-	function (a, b) {
-		return {x: a, y: b};
-	});
-var _elm_lang$mouse$Mouse$position = A3(
-	_elm_lang$core$Json_Decode$object2,
-	_elm_lang$mouse$Mouse$Position,
-	A2(_elm_lang$core$Json_Decode_ops[':='], 'pageX', _elm_lang$core$Json_Decode$int),
-	A2(_elm_lang$core$Json_Decode_ops[':='], 'pageY', _elm_lang$core$Json_Decode$int));
-var _elm_lang$mouse$Mouse$Watcher = F2(
-	function (a, b) {
-		return {taggers: a, pid: b};
-	});
-var _elm_lang$mouse$Mouse$Msg = F2(
-	function (a, b) {
-		return {category: a, position: b};
-	});
-var _elm_lang$mouse$Mouse$onEffects = F3(
-	function (router, newSubs, oldState) {
-		var rightStep = F3(
-			function (category, taggers, task) {
-				return A2(
-					_elm_lang$core$Task$andThen,
-					task,
-					function (state) {
-						return A2(
-							_elm_lang$core$Task$andThen,
-							_elm_lang$core$Process$spawn(
-								A3(
-									_elm_lang$dom$Dom_LowLevel$onDocument,
-									category,
-									_elm_lang$mouse$Mouse$position,
-									function (_p7) {
-										return A2(
-											_elm_lang$core$Platform$sendToSelf,
-											router,
-											A2(_elm_lang$mouse$Mouse$Msg, category, _p7));
-									})),
-							function (pid) {
-								return _elm_lang$core$Task$succeed(
-									A3(
-										_elm_lang$core$Dict$insert,
-										category,
-										A2(_elm_lang$mouse$Mouse$Watcher, taggers, pid),
-										state));
-							});
-					});
-			});
-		var bothStep = F4(
-			function (category, _p8, taggers, task) {
-				var _p9 = _p8;
-				return A2(
-					_elm_lang$core$Task$andThen,
-					task,
-					function (state) {
-						return _elm_lang$core$Task$succeed(
-							A3(
-								_elm_lang$core$Dict$insert,
-								category,
-								A2(_elm_lang$mouse$Mouse$Watcher, taggers, _p9.pid),
-								state));
-					});
-			});
-		var leftStep = F3(
-			function (category, _p10, task) {
-				var _p11 = _p10;
-				return A2(
-					_elm_lang$mouse$Mouse_ops['&>'],
-					_elm_lang$core$Process$kill(_p11.pid),
-					task);
-			});
-		return A6(
-			_elm_lang$core$Dict$merge,
-			leftStep,
-			bothStep,
-			rightStep,
-			oldState,
-			_elm_lang$mouse$Mouse$categorize(newSubs),
-			_elm_lang$core$Task$succeed(_elm_lang$core$Dict$empty));
-	});
-var _elm_lang$mouse$Mouse$MySub = F2(
-	function (a, b) {
-		return {ctor: 'MySub', _0: a, _1: b};
-	});
-var _elm_lang$mouse$Mouse$clicks = function (tagger) {
-	return _elm_lang$mouse$Mouse$subscription(
-		A2(_elm_lang$mouse$Mouse$MySub, 'click', tagger));
-};
-var _elm_lang$mouse$Mouse$moves = function (tagger) {
-	return _elm_lang$mouse$Mouse$subscription(
-		A2(_elm_lang$mouse$Mouse$MySub, 'mousemove', tagger));
-};
-var _elm_lang$mouse$Mouse$downs = function (tagger) {
-	return _elm_lang$mouse$Mouse$subscription(
-		A2(_elm_lang$mouse$Mouse$MySub, 'mousedown', tagger));
-};
-var _elm_lang$mouse$Mouse$ups = function (tagger) {
-	return _elm_lang$mouse$Mouse$subscription(
-		A2(_elm_lang$mouse$Mouse$MySub, 'mouseup', tagger));
-};
-var _elm_lang$mouse$Mouse$subMap = F2(
-	function (func, _p12) {
-		var _p13 = _p12;
-		return A2(
-			_elm_lang$mouse$Mouse$MySub,
-			_p13._0,
-			function (_p14) {
-				return func(
-					_p13._1(_p14));
-			});
-	});
-_elm_lang$core$Native_Platform.effectManagers['Mouse'] = {pkg: 'elm-lang/mouse', init: _elm_lang$mouse$Mouse$init, onEffects: _elm_lang$mouse$Mouse$onEffects, onSelfMsg: _elm_lang$mouse$Mouse$onSelfMsg, tag: 'sub', subMap: _elm_lang$mouse$Mouse$subMap};
-
 var _elm_lang$navigation$Native_Navigation = function() {
 
 function go(n)
@@ -13208,6 +13026,38 @@ var _rajasharan$yt_sync$Types$PlayPause = {ctor: 'PlayPause'};
 var _rajasharan$yt_sync$Types$LoadVideo = {ctor: 'LoadVideo'};
 var _rajasharan$yt_sync$Types$Connection = {ctor: 'Connection'};
 
+var _rajasharan$yt_sync$Utils$convertWidthToSecods = F2(
+	function (pos, model) {
+		return (pos * model.total) / _elm_lang$core$Basics$toFloat(model.width);
+	});
+var _rajasharan$yt_sync$Utils$convertSecondsToWidth = F2(
+	function (sec, model) {
+		return (sec * _elm_lang$core$Basics$toFloat(model.width)) / model.total;
+	});
+var _rajasharan$yt_sync$Utils$head$ = function (maybe) {
+	var _p0 = maybe;
+	if (_p0.ctor === 'Just') {
+		return _p0._0;
+	} else {
+		return '';
+	}
+};
+var _rajasharan$yt_sync$Utils$getVideoId = function (url) {
+	return A2(_elm_lang$core$String$contains, 'v=', url) ? _rajasharan$yt_sync$Utils$head$(
+		A2(
+			_elm_lang$core$Maybe$andThen,
+			A2(
+				_elm_community$list_extra$List_Extra$getAt,
+				1,
+				A2(_elm_lang$core$String$split, 'v=', url)),
+			function (s) {
+				return A2(
+					_elm_community$list_extra$List_Extra$getAt,
+					0,
+					A2(_elm_lang$core$String$split, '&', s));
+			})) : url;
+};
+
 var _rajasharan$yt_sync$Ports$play = _elm_lang$core$Native_Platform.outgoingPort(
 	'play',
 	function (v) {
@@ -13248,39 +13098,8 @@ var _rajasharan$yt_sync$Ports$getTime = _elm_lang$core$Native_Platform.incomingP
 
 var _rajasharan$yt_sync$Decoders$parse = F2(
 	function (msg, model) {
-		var seek = F2(
-			function (pos, model) {
-				return (pos * model.total) / _elm_lang$core$Basics$toFloat(model.width);
-			});
-		var cursor = F2(
-			function (sec, model) {
-				return (sec * _elm_lang$core$Basics$toFloat(model.width)) / model.total;
-			});
-		var head$ = function (maybe) {
-			var _p0 = maybe;
-			if (_p0.ctor === 'Just') {
-				return _p0._0;
-			} else {
-				return '';
-			}
-		};
-		var getVideoId = function (url) {
-			return A2(_elm_lang$core$String$contains, 'v=', url) ? head$(
-				A2(
-					_elm_lang$core$Maybe$andThen,
-					A2(
-						_elm_community$list_extra$List_Extra$getAt,
-						1,
-						A2(_elm_lang$core$String$split, 'v=', url)),
-					function (s) {
-						return A2(
-							_elm_community$list_extra$List_Extra$getAt,
-							0,
-							A2(_elm_lang$core$String$split, '&', s));
-					})) : url;
-		};
-		var _p1 = msg.kind;
-		switch (_p1.ctor) {
+		var _p0 = msg.kind;
+		switch (_p0.ctor) {
 			case 'Connection':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -13296,7 +13115,7 @@ var _rajasharan$yt_sync$Decoders$parse = F2(
 						_elm_lang$core$Native_Utils.update(
 							model,
 							{
-								url: getVideoId(msg.url),
+								url: _rajasharan$yt_sync$Utils$getVideoId(msg.url),
 								err: ''
 							})),
 					_elm_lang$core$Native_List.fromArray(
@@ -13322,7 +13141,7 @@ var _rajasharan$yt_sync$Decoders$parse = F2(
 					_elm_lang$core$Native_List.fromArray(
 						[
 							_rajasharan$yt_sync$Ports$seek(
-							A2(seek, msg.seek, model))
+							A2(_rajasharan$yt_sync$Utils$convertWidthToSecods, msg.seek, model))
 						]));
 		}
 	});
@@ -13339,16 +13158,15 @@ var _rajasharan$yt_sync$Decoders$decodeSocketMsg = F2(
 			});
 		var socketMsgDecoder = A5(_elm_lang$core$Json_Decode$object4, _rajasharan$yt_sync$Types$SocketMsg, kind, url, play, seek);
 		var value = A2(_elm_lang$core$Json_Decode$decodeString, socketMsgDecoder, str);
-		var _p2 = A2(_elm_lang$core$Debug$log, 'socket model', model);
-		var _p3 = value;
-		if (_p3.ctor === 'Ok') {
-			return A2(_rajasharan$yt_sync$Decoders$parse, _p3._0, model);
+		var _p1 = value;
+		if (_p1.ctor === 'Ok') {
+			return A2(_rajasharan$yt_sync$Decoders$parse, _p1._0, model);
 		} else {
 			return A2(
 				_elm_lang$core$Platform_Cmd_ops['!'],
 				_elm_lang$core$Native_Utils.update(
 					model,
-					{err: _p3._0}),
+					{err: _p1._0}),
 				_elm_lang$core$Native_List.fromArray(
 					[]));
 		}
@@ -13472,7 +13290,7 @@ var _rajasharan$yt_sync$Encoders$encodeSocketMsg = function (msg) {
 	}
 };
 
-var _rajasharan$yt_sync$Main$footer = function (model) {
+var _rajasharan$yt_sync$Views$footer = function (model) {
 	return A2(
 		_elm_lang$html$Html$p,
 		_elm_lang$core$Native_List.fromArray(
@@ -13484,7 +13302,7 @@ var _rajasharan$yt_sync$Main$footer = function (model) {
 				_elm_lang$html$Html$text(model.url)
 			]));
 };
-var _rajasharan$yt_sync$Main$seekbar = function (model) {
+var _rajasharan$yt_sync$Views$seekbar = function (model) {
 	var form = A2(
 		_evancz$elm_graphics$Collage$filled,
 		A3(_elm_lang$core$Color$rgb, 200, 50, 50),
@@ -13524,7 +13342,7 @@ var _rajasharan$yt_sync$Main$seekbar = function (model) {
 						[form])))
 			]));
 };
-var _rajasharan$yt_sync$Main$header = function (model) {
+var _rajasharan$yt_sync$Views$header = function (model) {
 	return A2(
 		_elm_lang$html$Html$p,
 		_elm_lang$core$Native_List.fromArray(
@@ -13557,7 +13375,7 @@ var _rajasharan$yt_sync$Main$header = function (model) {
 					[]))
 			]));
 };
-var _rajasharan$yt_sync$Main$view = function (model) {
+var _rajasharan$yt_sync$Views$view = function (model) {
 	var attrs = _elm_lang$core$Native_List.fromArray(
 		[
 			_elm_lang$html$Html_Attributes$src(
@@ -13584,7 +13402,7 @@ var _rajasharan$yt_sync$Main$view = function (model) {
 			]),
 		_elm_lang$core$Native_List.fromArray(
 			[
-				_rajasharan$yt_sync$Main$header(model),
+				_rajasharan$yt_sync$Views$header(model),
 				A2(
 				_elm_lang$html$Html$span,
 				_elm_lang$core$Native_List.fromArray(
@@ -13638,71 +13456,16 @@ var _rajasharan$yt_sync$Main$view = function (model) {
 									]))
 							]))
 					])),
-				_rajasharan$yt_sync$Main$seekbar(model)
+				_rajasharan$yt_sync$Views$seekbar(model)
 			]));
 };
-var _rajasharan$yt_sync$Main$subs = function (model) {
-	var times = ((_elm_lang$core$Native_Utils.cmp(model.total, 0) > 0) && model.play) ? A2(
-		_elm_lang$core$Time$every,
-		500 * _elm_lang$core$Time$millisecond,
-		function (t) {
-			return _rajasharan$yt_sync$Types$Tick;
-		}) : _elm_lang$core$Platform_Sub$none;
-	return _elm_lang$core$Platform_Sub$batch(
-		_elm_lang$core$Native_List.fromArray(
-			[
-				_rajasharan$yt_sync$Ports$errored(_rajasharan$yt_sync$Types$Error),
-				_rajasharan$yt_sync$Ports$played(_rajasharan$yt_sync$Types$Play),
-				_rajasharan$yt_sync$Ports$paused(_rajasharan$yt_sync$Types$Pause),
-				_rajasharan$yt_sync$Ports$seeked(_rajasharan$yt_sync$Types$Seek),
-				_rajasharan$yt_sync$Ports$totaled(_rajasharan$yt_sync$Types$Total),
-				_rajasharan$yt_sync$Ports$seekbarWidth(_rajasharan$yt_sync$Types$Width),
-				_elm_lang$window$Window$resizes(
-				function (s) {
-					return _rajasharan$yt_sync$Types$Resize;
-				}),
-				times,
-				_rajasharan$yt_sync$Ports$getTime(_rajasharan$yt_sync$Types$CheckCursor),
-				A2(_elm_lang$websocket$WebSocket$listen, model.server, _rajasharan$yt_sync$Types$Listen)
-			]));
-};
-var _rajasharan$yt_sync$Main$update = F2(
+
+var _rajasharan$yt_sync$Update$update = F2(
 	function (msg, model) {
-		var seek = F2(
-			function (pos, model) {
-				return (pos * model.total) / _elm_lang$core$Basics$toFloat(model.width);
-			});
-		var cursor = F2(
-			function (sec, model) {
-				return (sec * _elm_lang$core$Basics$toFloat(model.width)) / model.total;
-			});
-		var head$ = function (maybe) {
-			var _p0 = maybe;
-			if (_p0.ctor === 'Just') {
-				return _p0._0;
-			} else {
-				return '';
-			}
-		};
-		var getVideoId = function (url) {
-			return A2(_elm_lang$core$String$contains, 'v=', url) ? head$(
-				A2(
-					_elm_lang$core$Maybe$andThen,
-					A2(
-						_elm_community$list_extra$List_Extra$getAt,
-						1,
-						A2(_elm_lang$core$String$split, 'v=', url)),
-					function (s) {
-						return A2(
-							_elm_community$list_extra$List_Extra$getAt,
-							0,
-							A2(_elm_lang$core$String$split, '&', s));
-					})) : url;
-		};
-		var _p1 = msg;
-		switch (_p1.ctor) {
+		var _p0 = msg;
+		switch (_p0.ctor) {
 			case 'Load':
-				var _p2 = _p1._0;
+				var _p1 = _p0._0;
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					A2(
@@ -13711,7 +13474,7 @@ var _rajasharan$yt_sync$Main$update = F2(
 						_elm_lang$core$Native_Utils.update(
 							model,
 							{
-								url: getVideoId(_p2),
+								url: _rajasharan$yt_sync$Utils$getVideoId(_p1),
 								err: ''
 							})),
 					_elm_lang$core$Native_List.fromArray(
@@ -13720,7 +13483,7 @@ var _rajasharan$yt_sync$Main$update = F2(
 							_elm_lang$websocket$WebSocket$send,
 							model.server,
 							_rajasharan$yt_sync$Encoders$encodeSocketMsg(
-								{kind: _rajasharan$yt_sync$Types$LoadVideo, url: _p2, play: model.play, seek: model.cursorWidth}))
+								{kind: _rajasharan$yt_sync$Types$LoadVideo, url: _p1, play: model.play, seek: model.cursorWidth}))
 						]));
 			case 'TogglePlay':
 				return A2(
@@ -13747,7 +13510,7 @@ var _rajasharan$yt_sync$Main$update = F2(
 					_elm_lang$core$Native_Utils.update(
 						model,
 						{
-							err: A2(_elm_lang$core$Basics_ops['++'], _p1._0, ' Please reload!!!')
+							err: A2(_elm_lang$core$Basics_ops['++'], _p0._0, ' Please reload!!!')
 						}),
 					_elm_lang$core$Native_List.fromArray(
 						[]));
@@ -13777,7 +13540,7 @@ var _rajasharan$yt_sync$Main$update = F2(
 						'total',
 						_elm_lang$core$Native_Utils.update(
 							model,
-							{total: _p1._0})),
+							{total: _p0._0})),
 					_elm_lang$core$Native_List.fromArray(
 						[
 							_rajasharan$yt_sync$Ports$width(
@@ -13788,7 +13551,7 @@ var _rajasharan$yt_sync$Main$update = F2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						model,
-						{width: _p1._0}),
+						{width: _p0._0}),
 					_elm_lang$core$Native_List.fromArray(
 						[]));
 			case 'Resize':
@@ -13817,31 +13580,58 @@ var _rajasharan$yt_sync$Main$update = F2(
 					_elm_lang$core$Native_Utils.update(
 						model,
 						{
-							cursorWidth: A2(cursor, _p1._0, model)
+							cursorWidth: A2(_rajasharan$yt_sync$Utils$convertSecondsToWidth, _p0._0, model)
 						}),
 					_elm_lang$core$Native_List.fromArray(
 						[]));
 			case 'MoveCursor':
-				var _p3 = _p1._0;
+				var _p2 = _p0._0;
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						model,
-						{cursorWidth: _p3}),
+						{cursorWidth: _p2}),
 					_elm_lang$core$Native_List.fromArray(
 						[
 							_rajasharan$yt_sync$Ports$seek(
-							A2(seek, _p3, model)),
+							A2(_rajasharan$yt_sync$Utils$convertWidthToSecods, _p2, model)),
 							A2(
 							_elm_lang$websocket$WebSocket$send,
 							model.server,
 							_rajasharan$yt_sync$Encoders$encodeSocketMsg(
-								{kind: _rajasharan$yt_sync$Types$SeekPosition, url: model.url, play: model.play, seek: _p3}))
+								{kind: _rajasharan$yt_sync$Types$SeekPosition, url: model.url, play: model.play, seek: _p2}))
 						]));
 			default:
-				return A2(_rajasharan$yt_sync$Decoders$decodeSocketMsg, _p1._0, model);
+				return A2(_rajasharan$yt_sync$Decoders$decodeSocketMsg, _p0._0, model);
 		}
 	});
+
+var _rajasharan$yt_sync$Subs$subs = function (model) {
+	var times = ((_elm_lang$core$Native_Utils.cmp(model.total, 0) > 0) && model.play) ? A2(
+		_elm_lang$core$Time$every,
+		500 * _elm_lang$core$Time$millisecond,
+		function (t) {
+			return _rajasharan$yt_sync$Types$Tick;
+		}) : _elm_lang$core$Platform_Sub$none;
+	return _elm_lang$core$Platform_Sub$batch(
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_rajasharan$yt_sync$Ports$errored(_rajasharan$yt_sync$Types$Error),
+				_rajasharan$yt_sync$Ports$played(_rajasharan$yt_sync$Types$Play),
+				_rajasharan$yt_sync$Ports$paused(_rajasharan$yt_sync$Types$Pause),
+				_rajasharan$yt_sync$Ports$seeked(_rajasharan$yt_sync$Types$Seek),
+				_rajasharan$yt_sync$Ports$totaled(_rajasharan$yt_sync$Types$Total),
+				_rajasharan$yt_sync$Ports$seekbarWidth(_rajasharan$yt_sync$Types$Width),
+				_elm_lang$window$Window$resizes(
+				function (s) {
+					return _rajasharan$yt_sync$Types$Resize;
+				}),
+				times,
+				_rajasharan$yt_sync$Ports$getTime(_rajasharan$yt_sync$Types$CheckCursor),
+				A2(_elm_lang$websocket$WebSocket$listen, model.server, _rajasharan$yt_sync$Types$Listen)
+			]));
+};
+
 var _rajasharan$yt_sync$Main$urlUpdate = F2(
 	function (hash, model) {
 		return A2(
@@ -13876,7 +13666,7 @@ var _rajasharan$yt_sync$Main$main = {
 			function (l) {
 				return l.hash;
 			}),
-		{init: _rajasharan$yt_sync$Main$init, update: _rajasharan$yt_sync$Main$update, subscriptions: _rajasharan$yt_sync$Main$subs, view: _rajasharan$yt_sync$Main$view, urlUpdate: _rajasharan$yt_sync$Main$urlUpdate})
+		{init: _rajasharan$yt_sync$Main$init, update: _rajasharan$yt_sync$Update$update, subscriptions: _rajasharan$yt_sync$Subs$subs, view: _rajasharan$yt_sync$Views$view, urlUpdate: _rajasharan$yt_sync$Main$urlUpdate})
 };
 
 var Elm = {};
