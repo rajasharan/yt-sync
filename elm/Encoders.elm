@@ -18,7 +18,7 @@ send kind model =
     encodeSocketMsg
         { kind = kind
         , url = model.url
-        , play = model.play
+        , play = model.isPlaying
         , seek = model.seek
         }
     |> WS.send model.server

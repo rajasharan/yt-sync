@@ -21,14 +21,14 @@ update msg model =
         Load url -> Debug.log "url" { model | url = getVideoId url, err = "" }
                   ! [ send LoadVideo { model | url = getVideoId url, err = "" } ]
 
-        TogglePlay -> { model | play = not model.play }
-                    ! [ if model.play then Ports.pause () else Ports.play ()
+        TogglePlay -> model
+                    ! [ if model.isPlaying then Ports.pause () else Ports.play ()
                       , send PlayPause model
                       ]
 
         Error err -> { model | err = err ++ " Please reload!!!" } ! []
-        Play time -> model ! []
-        Pause time -> model ! []
+        Play time -> { model | isPlaying = True } ! []
+        Pause time -> { model | isPlaying = False } ! []
         Seek time -> model ! []
         Total time -> Debug.log "total" { model | total = time } ! [ Ports.width () ]
         Width w -> { model | width = w } ! []

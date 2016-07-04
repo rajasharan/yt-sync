@@ -11,7 +11,7 @@ subs : Model -> Sub Msg
 subs model =
     let
         times =
-            if model.total > 0 && model.play then
+            if model.total > 0 && model.isPlaying then
                 every (500 * millisecond) (\t -> Tick)
             else
                 Sub.none

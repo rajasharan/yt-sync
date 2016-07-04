@@ -7,7 +7,7 @@ type alias Model =
     { url : Url -- youtube video url
     , err : String -- errors from ports
     , server : String -- websocket server
-    , play : Bool -- play/pause toggle
+    , isPlaying : Bool -- play/pause toggle
     , total : Float -- total playback time
     , width : Int -- seekbar width
     , cursorWidth : Float -- playback cursor position
@@ -19,7 +19,7 @@ createModel =
     { url = ""
     , err = ""
     , server = ""
-    , play = False
+    , isPlaying = False
     , total = 0.0
     , width = 1000
     , cursorWidth = 0.0

@@ -10284,10 +10284,10 @@ var _elm_lang$window$Window$subMap = F2(
 	});
 _elm_lang$core$Native_Platform.effectManagers['Window'] = {pkg: 'elm-lang/window', init: _elm_lang$window$Window$init, onEffects: _elm_lang$window$Window$onEffects, onSelfMsg: _elm_lang$window$Window$onSelfMsg, tag: 'sub', subMap: _elm_lang$window$Window$subMap};
 
-var _rajasharan$yt_sync$Types$createModel = {url: '', err: '', server: '', play: false, total: 0.0, width: 1000, cursorWidth: 0.0, seek: 0.0};
+var _rajasharan$yt_sync$Types$createModel = {url: '', err: '', server: '', isPlaying: false, total: 0.0, width: 1000, cursorWidth: 0.0, seek: 0.0};
 var _rajasharan$yt_sync$Types$Model = F8(
 	function (a, b, c, d, e, f, g, h) {
-		return {url: a, err: b, server: c, play: d, total: e, width: f, cursorWidth: g, seek: h};
+		return {url: a, err: b, server: c, isPlaying: d, total: e, width: f, cursorWidth: g, seek: h};
 	});
 var _rajasharan$yt_sync$Types$SocketMsg = F4(
 	function (a, b, c, d) {
@@ -10420,9 +10420,7 @@ var _rajasharan$yt_sync$Decoders$parse = F2(
 			case 'PlayPause':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
-					_elm_lang$core$Native_Utils.update(
-						model,
-						{play: msg.play}),
+					model,
 					_elm_lang$core$Native_List.fromArray(
 						[
 							msg.play ? _rajasharan$yt_sync$Ports$pause(
@@ -10591,7 +10589,7 @@ var _rajasharan$yt_sync$Encoders$send = F2(
 			_elm_lang$websocket$WebSocket$send,
 			model.server,
 			_rajasharan$yt_sync$Encoders$encodeSocketMsg(
-				{kind: kind, url: model.url, play: model.play, seek: model.seek}));
+				{kind: kind, url: model.url, play: model.isPlaying, seek: model.seek}));
 	});
 
 var _rajasharan$yt_sync$Views$footer = function (model) {
@@ -10810,14 +10808,10 @@ var _rajasharan$yt_sync$Update$update = F2(
 			case 'TogglePlay':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
-					_elm_lang$core$Native_Utils.update(
-						model,
-						{
-							play: _elm_lang$core$Basics$not(model.play)
-						}),
+					model,
 					_elm_lang$core$Native_List.fromArray(
 						[
-							model.play ? _rajasharan$yt_sync$Ports$pause(
+							model.isPlaying ? _rajasharan$yt_sync$Ports$pause(
 							{ctor: '_Tuple0'}) : _rajasharan$yt_sync$Ports$play(
 							{ctor: '_Tuple0'}),
 							A2(_rajasharan$yt_sync$Encoders$send, _rajasharan$yt_sync$Types$PlayPause, model)
@@ -10835,13 +10829,17 @@ var _rajasharan$yt_sync$Update$update = F2(
 			case 'Play':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
-					model,
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{isPlaying: true}),
 					_elm_lang$core$Native_List.fromArray(
 						[]));
 			case 'Pause':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
-					model,
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{isPlaying: false}),
 					_elm_lang$core$Native_List.fromArray(
 						[]));
 			case 'Seek':
@@ -10928,7 +10926,7 @@ var _rajasharan$yt_sync$Update$update = F2(
 	});
 
 var _rajasharan$yt_sync$Subs$subs = function (model) {
-	var times = ((_elm_lang$core$Native_Utils.cmp(model.total, 0) > 0) && model.play) ? A2(
+	var times = ((_elm_lang$core$Native_Utils.cmp(model.total, 0) > 0) && model.isPlaying) ? A2(
 		_elm_lang$core$Time$every,
 		500 * _elm_lang$core$Time$millisecond,
 		function (t) {
