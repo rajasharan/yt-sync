@@ -41,4 +41,4 @@ parse msg model =
         Connection -> Debug.log "connected" model ! []
         LoadVideo -> Debug.log "decoded Model" { model | url = getVideoId msg.url, err = "" } ! []
         PlayPause -> { model | play = msg.play } ! [ if msg.play then Ports.pause () else Ports.play () ]
-        SeekPosition -> { model | cursorWidth = msg.seek } ! [ Ports.seek <| convertWidthToSecods msg.seek model ]
+        SeekPosition -> { model | cursorWidth = convertSecondsToWidth msg.seek model } ! [ Ports.seek msg.seek ]

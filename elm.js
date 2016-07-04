@@ -13137,11 +13137,12 @@ var _rajasharan$yt_sync$Decoders$parse = F2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						model,
-						{cursorWidth: msg.seek}),
+						{
+							cursorWidth: A2(_rajasharan$yt_sync$Utils$convertSecondsToWidth, msg.seek, model)
+						}),
 					_elm_lang$core$Native_List.fromArray(
 						[
-							_rajasharan$yt_sync$Ports$seek(
-							A2(_rajasharan$yt_sync$Utils$convertWidthToSecods, msg.seek, model))
+							_rajasharan$yt_sync$Ports$seek(msg.seek)
 						]));
 		}
 	});
@@ -13599,7 +13600,12 @@ var _rajasharan$yt_sync$Update$update = F2(
 							_elm_lang$websocket$WebSocket$send,
 							model.server,
 							_rajasharan$yt_sync$Encoders$encodeSocketMsg(
-								{kind: _rajasharan$yt_sync$Types$SeekPosition, url: model.url, play: model.play, seek: _p2}))
+								{
+									kind: _rajasharan$yt_sync$Types$SeekPosition,
+									url: model.url,
+									play: model.play,
+									seek: A2(_rajasharan$yt_sync$Utils$convertWidthToSecods, _p2, model)
+								}))
 						]));
 			default:
 				return A2(_rajasharan$yt_sync$Decoders$decodeSocketMsg, _p0._0, model);

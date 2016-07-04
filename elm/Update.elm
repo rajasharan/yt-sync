@@ -48,7 +48,7 @@ update msg model =
                               { kind = SeekPosition
                               , url = model.url
                               , play = model.play
-                              , seek = pos
+                              , seek = convertWidthToSecods pos model
                               }
                               |> send model.server
                           ]
