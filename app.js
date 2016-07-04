@@ -48,7 +48,9 @@ app.ports.total.subscribe(function() {
 });
 
 app.ports.width.subscribe(function() {
-    var w = $('.seekbar').width();
+    //var w = $('.seekbar').width();
+    var w = $('#video-wrapper').width();
+    console.log('#video-wrapper width: ', w);
     app.ports.seekbarWidth.send(w);
 });
 

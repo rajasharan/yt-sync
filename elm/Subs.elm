@@ -25,6 +25,6 @@ subs model =
         , seekbarWidth Width
         , resizes (\s -> Resize)
         , times
-        , getTime CheckCursor
+        , getTime UpdateSeekBar
         , listen model.server Listen
         ]

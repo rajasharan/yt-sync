@@ -19,16 +19,10 @@ main =
 
 init : String -> (Model, Cmd Msg)
 init hash =
-    ( { url = ""
-    , err = ""
-    , server = dropLeft 1 hash
-    , play = False
-    , total = 0.0
-    , width = 1000
-    , cursorWidth = 0.0
-    }
-    , Cmd.none
-    )
+    let
+        model = createModel
+    in
+        { model | server = dropLeft 1 hash } ! []
 
 urlUpdate : String -> Model -> (Model, Cmd Msg)
 urlUpdate hash model = { model | server = dropLeft 1 hash } ! []

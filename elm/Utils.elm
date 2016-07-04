@@ -18,11 +18,3 @@ getVideoId url =
         head' ((getAt 1 <| split "v=" url) `Maybe.andThen` (\s -> getAt 0 (split "&" s)))
     else
         url
-
-convertSecondsToWidth : Float -> Model -> Float
-convertSecondsToWidth sec model =
-    sec * (Basics.toFloat model.width) / model.total
-
-convertWidthToSecods : Float -> Model -> Float
-convertWidthToSecods pos model =
-    pos * model.total / (Basics.toFloat model.width)

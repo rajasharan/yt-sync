@@ -1,11 +1,8 @@
 module Views exposing (view)
 
 import Html exposing (..)
-import Html.Attributes exposing (..)
+import Html.Attributes as HA exposing (..)
 import Html.Events exposing (..)
-import Collage exposing (..)
-import Element exposing (..)
-import Color exposing (..)
 import Json.Decode exposing (..)
 
 import Types exposing (..)
@@ -23,6 +20,7 @@ view model =
             , id "iframe"
             ]
     in
+
     div [class "container"]
       [ header model
       , Html.span [class "help is-danger"] [Html.text model.err]
@@ -34,7 +32,8 @@ view model =
                   ]
               ]
           ]
-        , seekbar model
+        , playbar model
+      --, seekbar model
       --, footer model
       ]
 
@@ -50,23 +49,21 @@ header model =
           ] []
       ]
 
-seekbar : Model -> Html Msg
-seekbar model =
-    let
-        form1 = rect model.cursorWidth 20
-              |> filled (rgb 200 100 50)
-        form2 = rect (Basics.toFloat model.width - model.cursorWidth) 20
-               |> outlined defaultLine
-        form = rect model.cursorWidth 20
-               |> filled (rgb 200 50 50)
-    in
-      div [ class "seekbar"
-          , on "click" (object1 MoveCursor ("offsetX" := float))
-          ] 
-        [ collage (round model.cursorWidth) 20 [form]
-          |> toHtml
-        ]
+playbar : Model -> Html Msg
+playbar model =
+  p [class "control"]
+    [ input [ type' "range"
+            , class "input is-expanded hint--bottom hint--bounce"
+            , HA.min "0"
+            , HA.max <| toString model.total
+            , step "1"
+            , defaultValue "0"
+            , HA.value <| toString model.seek
+            , attribute "aria-label" (toString model.seek ++ " sec / " ++ toString model.total ++ " sec")
+            , onInput SeekBar
+            ] []
+    ]
 
 footer : Model -> Html Msg
 footer model =
-    p [class "nav nav-item"] [Html.text model.url]
+    p [class "nav nav-item"] [Html.text <| toString model.seek]

@@ -11,6 +11,19 @@ type alias Model =
     , total : Float -- total playback time
     , width : Int -- seekbar width
     , cursorWidth : Float -- playback cursor position
+    , seek : Float
+    }
+
+createModel : Model
+createModel =
+    { url = ""
+    , err = ""
+    , server = ""
+    , play = False
+    , total = 0.0
+    , width = 1000
+    , cursorWidth = 0.0
+    , seek = 0.0
     }
 
 type Msg = Load String
@@ -23,9 +36,9 @@ type Msg = Load String
          | Width Int
          | Resize
          | Tick
-         | CheckCursor Float
-         | MoveCursor Float
+         | UpdateSeekBar Float
          | Listen String
+         | SeekBar String
 
 type alias SocketMsg =
     { kind : SocketKind
