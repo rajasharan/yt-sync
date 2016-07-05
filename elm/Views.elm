@@ -3,37 +3,44 @@ module Views exposing (view)
 import Html exposing (..)
 import Html.Attributes as HA exposing (..)
 import Html.Events exposing (..)
-import Json.Decode exposing (..)
+import Json.Decode as Json exposing (..)
+import String exposing (..)
 
 import Types exposing (..)
 
 view : Model -> Html Msg
 view model =
     let
+        --_ = Debug.log "view:model" model
         attrs =
             [ src <| "https://www.youtube.com/embed/"
-                  ++ model.url
+                  ++ model.vId
                   ++ "?enablejsapi=1"
                   ++ "&controls=0"
                   ++ "&fs=1"
                   ++ "&showinfo=1"
             , id "iframe"
             ]
+
+        error_notification =
+            if length model.err > 0 then
+                "notification is-danger"
+            else
+                ""
     in
 
     div [class "container"]
       [ header model
-      , Html.span [class "help is-danger"] [Html.text model.err]
+      , Html.div [class error_notification] [Html.text model.err]
       , section [class "hero"]
           [ div [class "hero-body"]
               [ div [class "container"]
                   [ div [id "video-wrapper", class "video-wrapper", onClick TogglePlay]
-                      [ iframe attrs [] ]
+                      [ div [id "player"] [] ]
                   ]
               ]
           ]
         , playbar model
-      --, seekbar model
       --, footer model
       ]
 
@@ -45,7 +52,8 @@ header model =
           [ class "input is-large is-expanded"
           , type' "text"
           , placeholder "Enter youtube link"
-          , onInput Load
+          , onInput UrlInput
+          , on "keypress" (Json.map Load keyCode)
           ] []
       ]
 

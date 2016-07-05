@@ -64,20 +64,51 @@ app.ports.time.subscribe(function() {
     }
 });
 
+var firsttime = true;
+var videoId;
+app.ports.load.subscribe(function(vId) {
+    if (firsttime) {
+        videoId = vId;
+        loadYouTubeAPI();
+    } else {
+        load(vId);
+    }
+});
+
+function loadVideoIdFirstTime() {
+    if (firsttime) {
+        load(videoId);
+        firsttime = false;
+    }
+}
 
  /*
   *Youtube API : https://developers.google.com/youtube/iframe_api_reference
   */
-var tag = document.createElement('script');
-tag.src = "https://www.youtube.com/iframe_api";
 
-var firstScriptTag = document.getElementsByTagName('script')[0];
-firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+//console.log("PLAYER FOUND: ", $('#player').length);
+
+function loadYouTubeAPI() {
+    console.log('LOADING YOUTUBE API');
+    var tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+}
 
 var player;
 function onYouTubeIframeAPIReady() {
     console.log('BUILDING YOUTUBE FRAME');
-    player = new YT.Player('iframe', {
+    player = new YT.Player('player', {
+        //videoId: 'GIimRbcOvM8',
+        playerVars: {
+            'enablejsapi': 1,
+            'controls': 0,
+            'fs': 1,
+            'showinfo': 1,
+            'autoplay': 0
+        },
         events: {
             'onReady': onPlayerReady,
             'onStateChange': onPlayerStateChange
@@ -87,16 +118,44 @@ function onYouTubeIframeAPIReady() {
 
 function onPlayerReady(event) {
     console.log('READY NOW');
+    loadVideoIdFirstTime();
+}
+
+function onPlayerStateChange(event) {
+    //console.log('STATE', playerState(event.data));
     try {
-        app.ports.totaled.send(total());
+        app.ports.playing.send(event.data === YT.PlayerState.PLAYING);
     } catch (e) {
         console.log(e);
         app.ports.errored.send(e.toString());
     }
+
+    if (event.data > 0) {
+        try {
+            t = total();
+            //console.log('TOTAL TIME: ', t);
+            app.ports.totaled.send(t);
+        } catch (e) {
+            console.log(e);
+            app.ports.errored.send(e.toString());
+        }
+    }
 }
 
-function onPlayerStateChange(event) {
-    console.log('STATE', event.data);
+function playerState(data) {
+    if (data === YT.PlayerState.UNSTARTED) {
+        return 'UNSTARTED';
+    } else if (data === YT.PlayerState.ENDED) {
+        return 'ENDED';
+    } else if (data === YT.PlayerState.PLAYING) {
+        return 'PLAYING';
+    } else if (data === YT.PlayerState.PAUSED) {
+        return 'PAUSED';
+    } else if (data === YT.PlayerState.BUFFERING) {
+        return 'BUFFERING';
+    } else if (data === YT.PlayerState.CUED) {
+        return 'CUED';
+    }
 }
 
 function play() {

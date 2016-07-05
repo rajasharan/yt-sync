@@ -18,6 +18,7 @@ subs model =
     in
     Sub.batch
         [ errored Error
+        , playing PlayerState
         , played Play
         , paused Pause
         , seeked Seek

@@ -18,19 +18,25 @@ update msg model =
                 Err e -> 0.0
     in
     case msg of
-        Load url -> Debug.log "url" { model | url = getVideoId url, err = "" }
-                  ! [ send LoadVideo { model | url = getVideoId url, err = "" } ]
+        UrlInput url -> { model | vId = getVideoId url, err = "" } ! []
+
+        Load key ->
+            if key == 13 then
+                Debug.log "vId" { model | load = True } ! [ Ports.load model.vId, send LoadVideo model ]
+            else
+                { model | load = False } ! []
 
         TogglePlay -> model
                     ! [ if model.isPlaying then Ports.pause () else Ports.play ()
                       , send PlayPause model
                       ]
 
-        Error err -> { model | err = err ++ " Please reload!!!" } ! []
+        Error err -> { model | err = "Please reload!!! " ++ err } ! []
+        PlayerState isPlaying -> { model | isPlaying = isPlaying } ! []
         Play time -> { model | isPlaying = True } ! []
         Pause time -> { model | isPlaying = False } ! []
         Seek time -> model ! []
-        Total time -> Debug.log "total" { model | total = time } ! [ Ports.width () ]
+        Total time -> { model | total = time } ! [ Ports.width () ]
         Width w -> { model | width = w } ! []
         Resize -> model ! [ Ports.width (), Ports.time () ]
         Tick -> model ! [ Ports.time () ]

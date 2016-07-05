@@ -10284,14 +10284,14 @@ var _elm_lang$window$Window$subMap = F2(
 	});
 _elm_lang$core$Native_Platform.effectManagers['Window'] = {pkg: 'elm-lang/window', init: _elm_lang$window$Window$init, onEffects: _elm_lang$window$Window$onEffects, onSelfMsg: _elm_lang$window$Window$onSelfMsg, tag: 'sub', subMap: _elm_lang$window$Window$subMap};
 
-var _rajasharan$yt_sync$Types$createModel = {url: '', err: '', server: '', isPlaying: false, total: 0.0, width: 1000, cursorWidth: 0.0, seek: 0.0};
-var _rajasharan$yt_sync$Types$Model = F8(
-	function (a, b, c, d, e, f, g, h) {
-		return {url: a, err: b, server: c, isPlaying: d, total: e, width: f, cursorWidth: g, seek: h};
+var _rajasharan$yt_sync$Types$createModel = {vId: '', load: false, err: '', server: '', isPlaying: false, total: 0.0, width: 1000, cursorWidth: 0.0, seek: 0.0};
+var _rajasharan$yt_sync$Types$Model = F9(
+	function (a, b, c, d, e, f, g, h, i) {
+		return {vId: a, load: b, err: c, server: d, isPlaying: e, total: f, width: g, cursorWidth: h, seek: i};
 	});
 var _rajasharan$yt_sync$Types$SocketMsg = F4(
 	function (a, b, c, d) {
-		return {kind: a, url: b, play: c, seek: d};
+		return {kind: a, vId: b, play: c, seek: d};
 	});
 var _rajasharan$yt_sync$Types$SeekBar = function (a) {
 	return {ctor: 'SeekBar', _0: a};
@@ -10319,12 +10319,18 @@ var _rajasharan$yt_sync$Types$Pause = function (a) {
 var _rajasharan$yt_sync$Types$Play = function (a) {
 	return {ctor: 'Play', _0: a};
 };
+var _rajasharan$yt_sync$Types$PlayerState = function (a) {
+	return {ctor: 'PlayerState', _0: a};
+};
 var _rajasharan$yt_sync$Types$Error = function (a) {
 	return {ctor: 'Error', _0: a};
 };
 var _rajasharan$yt_sync$Types$TogglePlay = {ctor: 'TogglePlay'};
 var _rajasharan$yt_sync$Types$Load = function (a) {
 	return {ctor: 'Load', _0: a};
+};
+var _rajasharan$yt_sync$Types$UrlInput = function (a) {
+	return {ctor: 'UrlInput', _0: a};
 };
 var _rajasharan$yt_sync$Types$SeekPosition = {ctor: 'SeekPosition'};
 var _rajasharan$yt_sync$Types$PlayPause = {ctor: 'PlayPause'};
@@ -10355,6 +10361,11 @@ var _rajasharan$yt_sync$Utils$getVideoId = function (url) {
 			})) : url;
 };
 
+var _rajasharan$yt_sync$Ports$load = _elm_lang$core$Native_Platform.outgoingPort(
+	'load',
+	function (v) {
+		return v;
+	});
 var _rajasharan$yt_sync$Ports$play = _elm_lang$core$Native_Platform.outgoingPort(
 	'play',
 	function (v) {
@@ -10385,6 +10396,7 @@ var _rajasharan$yt_sync$Ports$time = _elm_lang$core$Native_Platform.outgoingPort
 	function (v) {
 		return null;
 	});
+var _rajasharan$yt_sync$Ports$playing = _elm_lang$core$Native_Platform.incomingPort('playing', _elm_lang$core$Json_Decode$bool);
 var _rajasharan$yt_sync$Ports$played = _elm_lang$core$Native_Platform.incomingPort('played', _elm_lang$core$Json_Decode$float);
 var _rajasharan$yt_sync$Ports$paused = _elm_lang$core$Native_Platform.incomingPort('paused', _elm_lang$core$Json_Decode$float);
 var _rajasharan$yt_sync$Ports$seeked = _elm_lang$core$Native_Platform.incomingPort('seeked', _elm_lang$core$Json_Decode$float);
@@ -10406,17 +10418,13 @@ var _rajasharan$yt_sync$Decoders$parse = F2(
 			case 'LoadVideo':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
-					A2(
-						_elm_lang$core$Debug$log,
-						'decoded Model',
-						_elm_lang$core$Native_Utils.update(
-							model,
-							{
-								url: _rajasharan$yt_sync$Utils$getVideoId(msg.url),
-								err: ''
-							})),
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{vId: msg.vId, err: ''}),
 					_elm_lang$core$Native_List.fromArray(
-						[]));
+						[
+							_rajasharan$yt_sync$Ports$load(msg.vId)
+						]));
 			case 'PlayPause':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -10443,14 +10451,14 @@ var _rajasharan$yt_sync$Decoders$decodeSocketMsg = F2(
 	function (str, model) {
 		var seek = A2(_elm_lang$core$Json_Decode_ops[':='], 'seek', _elm_lang$core$Json_Decode$float);
 		var play = A2(_elm_lang$core$Json_Decode_ops[':='], 'play', _elm_lang$core$Json_Decode$bool);
-		var url = A2(_elm_lang$core$Json_Decode_ops[':='], 'url', _elm_lang$core$Json_Decode$string);
+		var vId = A2(_elm_lang$core$Json_Decode_ops[':='], 'url', _elm_lang$core$Json_Decode$string);
 		var kind = A2(
 			_elm_lang$core$Json_Decode$andThen,
 			A2(_elm_lang$core$Json_Decode_ops[':='], 'kind', _elm_lang$core$Json_Decode$string),
 			function (s) {
 				return A2(_elm_lang$core$String$contains, s, 'Connection') ? _elm_lang$core$Json_Decode$succeed(_rajasharan$yt_sync$Types$Connection) : (A2(_elm_lang$core$String$contains, s, 'LoadVideo') ? _elm_lang$core$Json_Decode$succeed(_rajasharan$yt_sync$Types$LoadVideo) : (A2(_elm_lang$core$String$contains, s, 'PlayPause') ? _elm_lang$core$Json_Decode$succeed(_rajasharan$yt_sync$Types$PlayPause) : (A2(_elm_lang$core$String$contains, s, 'SeekPosition') ? _elm_lang$core$Json_Decode$succeed(_rajasharan$yt_sync$Types$SeekPosition) : _elm_lang$core$Json_Decode$fail('unknown SocketKind message'))));
 			});
-		var socketMsgDecoder = A5(_elm_lang$core$Json_Decode$object4, _rajasharan$yt_sync$Types$SocketMsg, kind, url, play, seek);
+		var socketMsgDecoder = A5(_elm_lang$core$Json_Decode$object4, _rajasharan$yt_sync$Types$SocketMsg, kind, vId, play, seek);
 		var value = A2(_elm_lang$core$Json_Decode$decodeString, socketMsgDecoder, str);
 		var _p1 = value;
 		if (_p1.ctor === 'Ok') {
@@ -10512,7 +10520,7 @@ var _rajasharan$yt_sync$Encoders$encodeSocketMsg = function (msg) {
 							{
 							ctor: '_Tuple2',
 							_0: 'url',
-							_1: _elm_lang$core$Json_Encode$string(msg.url)
+							_1: _elm_lang$core$Json_Encode$string(msg.vId)
 						},
 							{
 							ctor: '_Tuple2',
@@ -10589,7 +10597,7 @@ var _rajasharan$yt_sync$Encoders$send = F2(
 			_elm_lang$websocket$WebSocket$send,
 			model.server,
 			_rajasharan$yt_sync$Encoders$encodeSocketMsg(
-				{kind: kind, url: model.url, play: model.isPlaying, seek: model.seek}));
+				{kind: kind, vId: model.vId, play: model.isPlaying, seek: model.seek}));
 	});
 
 var _rajasharan$yt_sync$Views$footer = function (model) {
@@ -10673,13 +10681,20 @@ var _rajasharan$yt_sync$Views$header = function (model) {
 						_elm_lang$html$Html_Attributes$class('input is-large is-expanded'),
 						_elm_lang$html$Html_Attributes$type$('text'),
 						_elm_lang$html$Html_Attributes$placeholder('Enter youtube link'),
-						_elm_lang$html$Html_Events$onInput(_rajasharan$yt_sync$Types$Load)
+						_elm_lang$html$Html_Events$onInput(_rajasharan$yt_sync$Types$UrlInput),
+						A2(
+						_elm_lang$html$Html_Events$on,
+						'keypress',
+						A2(_elm_lang$core$Json_Decode$map, _rajasharan$yt_sync$Types$Load, _elm_lang$html$Html_Events$keyCode))
 					]),
 				_elm_lang$core$Native_List.fromArray(
 					[]))
 			]));
 };
 var _rajasharan$yt_sync$Views$view = function (model) {
+	var error_notification = (_elm_lang$core$Native_Utils.cmp(
+		_elm_lang$core$String$length(model.err),
+		0) > 0) ? 'notification is-danger' : '';
 	var attrs = _elm_lang$core$Native_List.fromArray(
 		[
 			_elm_lang$html$Html_Attributes$src(
@@ -10688,7 +10703,7 @@ var _rajasharan$yt_sync$Views$view = function (model) {
 				'https://www.youtube.com/embed/',
 				A2(
 					_elm_lang$core$Basics_ops['++'],
-					model.url,
+					model.vId,
 					A2(
 						_elm_lang$core$Basics_ops['++'],
 						'?enablejsapi=1',
@@ -10708,10 +10723,10 @@ var _rajasharan$yt_sync$Views$view = function (model) {
 			[
 				_rajasharan$yt_sync$Views$header(model),
 				A2(
-				_elm_lang$html$Html$span,
+				_elm_lang$html$Html$div,
 				_elm_lang$core$Native_List.fromArray(
 					[
-						_elm_lang$html$Html_Attributes$class('help is-danger')
+						_elm_lang$html$Html_Attributes$class(error_notification)
 					]),
 				_elm_lang$core$Native_List.fromArray(
 					[
@@ -10752,8 +10767,11 @@ var _rajasharan$yt_sync$Views$view = function (model) {
 										_elm_lang$core$Native_List.fromArray(
 											[
 												A2(
-												_elm_lang$html$Html$iframe,
-												attrs,
+												_elm_lang$html$Html$div,
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html_Attributes$id('player')
+													]),
 												_elm_lang$core$Native_List.fromArray(
 													[]))
 											]))
@@ -10780,31 +10798,37 @@ var _rajasharan$yt_sync$Update$update = F2(
 		};
 		var _p1 = msg;
 		switch (_p1.ctor) {
-			case 'Load':
-				var _p2 = _p1._0;
+			case 'UrlInput':
 				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{
+							vId: _rajasharan$yt_sync$Utils$getVideoId(_p1._0),
+							err: ''
+						}),
+					_elm_lang$core$Native_List.fromArray(
+						[]));
+			case 'Load':
+				return _elm_lang$core$Native_Utils.eq(_p1._0, 13) ? A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					A2(
 						_elm_lang$core$Debug$log,
-						'url',
+						'vId',
 						_elm_lang$core$Native_Utils.update(
 							model,
-							{
-								url: _rajasharan$yt_sync$Utils$getVideoId(_p2),
-								err: ''
-							})),
+							{load: true})),
 					_elm_lang$core$Native_List.fromArray(
 						[
-							A2(
-							_rajasharan$yt_sync$Encoders$send,
-							_rajasharan$yt_sync$Types$LoadVideo,
-							_elm_lang$core$Native_Utils.update(
-								model,
-								{
-									url: _rajasharan$yt_sync$Utils$getVideoId(_p2),
-									err: ''
-								}))
-						]));
+							_rajasharan$yt_sync$Ports$load(model.vId),
+							A2(_rajasharan$yt_sync$Encoders$send, _rajasharan$yt_sync$Types$LoadVideo, model)
+						])) : A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{load: false}),
+					_elm_lang$core$Native_List.fromArray(
+						[]));
 			case 'TogglePlay':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -10822,8 +10846,16 @@ var _rajasharan$yt_sync$Update$update = F2(
 					_elm_lang$core$Native_Utils.update(
 						model,
 						{
-							err: A2(_elm_lang$core$Basics_ops['++'], _p1._0, ' Please reload!!!')
+							err: A2(_elm_lang$core$Basics_ops['++'], 'Please reload!!! ', _p1._0)
 						}),
+					_elm_lang$core$Native_List.fromArray(
+						[]));
+			case 'PlayerState':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{isPlaying: _p1._0}),
 					_elm_lang$core$Native_List.fromArray(
 						[]));
 			case 'Play':
@@ -10851,12 +10883,9 @@ var _rajasharan$yt_sync$Update$update = F2(
 			case 'Total':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
-					A2(
-						_elm_lang$core$Debug$log,
-						'total',
-						_elm_lang$core$Native_Utils.update(
-							model,
-							{total: _p1._0})),
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{total: _p1._0}),
 					_elm_lang$core$Native_List.fromArray(
 						[
 							_rajasharan$yt_sync$Ports$width(
@@ -10899,25 +10928,25 @@ var _rajasharan$yt_sync$Update$update = F2(
 					_elm_lang$core$Native_List.fromArray(
 						[]));
 			case 'SeekBar':
-				var _p3 = _p1._0;
+				var _p2 = _p1._0;
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						model,
 						{
-							seek: secs(_p3)
+							seek: secs(_p2)
 						}),
 					_elm_lang$core$Native_List.fromArray(
 						[
 							_rajasharan$yt_sync$Ports$seek(
-							secs(_p3)),
+							secs(_p2)),
 							A2(
 							_rajasharan$yt_sync$Encoders$send,
 							_rajasharan$yt_sync$Types$SeekPosition,
 							_elm_lang$core$Native_Utils.update(
 								model,
 								{
-									seek: secs(_p3)
+									seek: secs(_p2)
 								}))
 						]));
 			default:
@@ -10936,6 +10965,7 @@ var _rajasharan$yt_sync$Subs$subs = function (model) {
 		_elm_lang$core$Native_List.fromArray(
 			[
 				_rajasharan$yt_sync$Ports$errored(_rajasharan$yt_sync$Types$Error),
+				_rajasharan$yt_sync$Ports$playing(_rajasharan$yt_sync$Types$PlayerState),
 				_rajasharan$yt_sync$Ports$played(_rajasharan$yt_sync$Types$Play),
 				_rajasharan$yt_sync$Ports$paused(_rajasharan$yt_sync$Types$Pause),
 				_rajasharan$yt_sync$Ports$seeked(_rajasharan$yt_sync$Types$Seek),

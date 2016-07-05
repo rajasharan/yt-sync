@@ -25,10 +25,10 @@ decodeSocketMsg str model =
                    else
                        fail "unknown SocketKind message"
                )
-        url = "url" := string
+        vId = "url" := string
         play = "play" := bool
         seek = "seek" := float
-        socketMsgDecoder = object4 SocketMsg kind url play seek
+        socketMsgDecoder = object4 SocketMsg kind vId play seek
         value = decodeString socketMsgDecoder str
     in
         case value of
@@ -39,6 +39,6 @@ parse : SocketMsg -> Model -> (Model, Cmd Msg)
 parse msg model =
     case msg.kind of
         Connection -> Debug.log "connected" model ! []
-        LoadVideo -> Debug.log "decoded Model" { model | url = getVideoId msg.url, err = "" } ! []
+        LoadVideo -> { model | vId = msg.vId, err = "" } ! [ Ports.load msg.vId ]
         PlayPause -> model ! [ if msg.play then Ports.pause () else Ports.play () ]
         SeekPosition -> { model | seek = msg.seek } ! [ Ports.seek msg.seek ]
