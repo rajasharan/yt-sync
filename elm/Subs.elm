@@ -3,7 +3,6 @@ module Subs exposing (subs)
 import Types exposing (..)
 import WebSocket exposing (..)
 import Time exposing (..)
-import Window exposing (..)
 
 import Ports exposing (..)
 
@@ -23,8 +22,6 @@ subs model =
         , paused Pause
         , seeked Seek
         , totaled Total
-        , seekbarWidth Width
-        , resizes (\s -> Resize)
         , times
         , getTime UpdateSeekBar
         , listen model.server Listen

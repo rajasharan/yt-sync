@@ -9,8 +9,6 @@ type alias Model =
     , server : String -- websocket server
     , isPlaying : Bool -- play/pause toggle
     , total : Float -- total playback time
-    , width : Int -- seekbar width
-    , cursorWidth : Float -- playback cursor position
     , seek : Float -- playback cursor position
     }
 
@@ -22,8 +20,6 @@ createModel =
     , server = ""
     , isPlaying = False
     , total = 0.0
-    , width = 1000
-    , cursorWidth = 0.0
     , seek = 0.0
     }
 
@@ -36,8 +32,6 @@ type Msg = UrlInput String
          | Pause Float
          | Seek Float
          | Total Float
-         | Width Int
-         | Resize
          | Tick
          | UpdateSeekBar Float
          | Listen String

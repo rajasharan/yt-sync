@@ -10162,132 +10162,10 @@ var _elm_lang$websocket$WebSocket$onSelfMsg = F3(
 	});
 _elm_lang$core$Native_Platform.effectManagers['WebSocket'] = {pkg: 'elm-lang/websocket', init: _elm_lang$websocket$WebSocket$init, onEffects: _elm_lang$websocket$WebSocket$onEffects, onSelfMsg: _elm_lang$websocket$WebSocket$onSelfMsg, tag: 'fx', cmdMap: _elm_lang$websocket$WebSocket$cmdMap, subMap: _elm_lang$websocket$WebSocket$subMap};
 
-var _elm_lang$window$Native_Window = function()
-{
-
-var size = _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)	{
-	callback(_elm_lang$core$Native_Scheduler.succeed({
-		width: window.innerWidth,
-		height: window.innerHeight
-	}));
-});
-
-return {
-	size: size
-};
-
-}();
-var _elm_lang$window$Window_ops = _elm_lang$window$Window_ops || {};
-_elm_lang$window$Window_ops['&>'] = F2(
-	function (t1, t2) {
-		return A2(
-			_elm_lang$core$Task$andThen,
-			t1,
-			function (_p0) {
-				return t2;
-			});
-	});
-var _elm_lang$window$Window$onSelfMsg = F3(
-	function (router, dimensions, state) {
-		var _p1 = state;
-		if (_p1.ctor === 'Nothing') {
-			return _elm_lang$core$Task$succeed(state);
-		} else {
-			var send = function (_p2) {
-				var _p3 = _p2;
-				return A2(
-					_elm_lang$core$Platform$sendToApp,
-					router,
-					_p3._0(dimensions));
-			};
-			return A2(
-				_elm_lang$window$Window_ops['&>'],
-				_elm_lang$core$Task$sequence(
-					A2(_elm_lang$core$List$map, send, _p1._0.subs)),
-				_elm_lang$core$Task$succeed(state));
-		}
-	});
-var _elm_lang$window$Window$init = _elm_lang$core$Task$succeed(_elm_lang$core$Maybe$Nothing);
-var _elm_lang$window$Window$size = _elm_lang$window$Native_Window.size;
-var _elm_lang$window$Window$width = A2(
-	_elm_lang$core$Task$map,
-	function (_) {
-		return _.width;
-	},
-	_elm_lang$window$Window$size);
-var _elm_lang$window$Window$height = A2(
-	_elm_lang$core$Task$map,
-	function (_) {
-		return _.height;
-	},
-	_elm_lang$window$Window$size);
-var _elm_lang$window$Window$onEffects = F3(
-	function (router, newSubs, oldState) {
-		var _p4 = {ctor: '_Tuple2', _0: oldState, _1: newSubs};
-		if (_p4._0.ctor === 'Nothing') {
-			if (_p4._1.ctor === '[]') {
-				return _elm_lang$core$Task$succeed(_elm_lang$core$Maybe$Nothing);
-			} else {
-				return A2(
-					_elm_lang$core$Task$andThen,
-					_elm_lang$core$Process$spawn(
-						A3(
-							_elm_lang$dom$Dom_LowLevel$onWindow,
-							'resize',
-							_elm_lang$core$Json_Decode$succeed(
-								{ctor: '_Tuple0'}),
-							function (_p5) {
-								return A2(
-									_elm_lang$core$Task$andThen,
-									_elm_lang$window$Window$size,
-									_elm_lang$core$Platform$sendToSelf(router));
-							})),
-					function (pid) {
-						return _elm_lang$core$Task$succeed(
-							_elm_lang$core$Maybe$Just(
-								{subs: newSubs, pid: pid}));
-					});
-			}
-		} else {
-			if (_p4._1.ctor === '[]') {
-				return A2(
-					_elm_lang$window$Window_ops['&>'],
-					_elm_lang$core$Process$kill(_p4._0._0.pid),
-					_elm_lang$core$Task$succeed(_elm_lang$core$Maybe$Nothing));
-			} else {
-				return _elm_lang$core$Task$succeed(
-					_elm_lang$core$Maybe$Just(
-						{subs: newSubs, pid: _p4._0._0.pid}));
-			}
-		}
-	});
-var _elm_lang$window$Window$subscription = _elm_lang$core$Native_Platform.leaf('Window');
-var _elm_lang$window$Window$Size = F2(
-	function (a, b) {
-		return {width: a, height: b};
-	});
-var _elm_lang$window$Window$MySub = function (a) {
-	return {ctor: 'MySub', _0: a};
-};
-var _elm_lang$window$Window$resizes = function (tagger) {
-	return _elm_lang$window$Window$subscription(
-		_elm_lang$window$Window$MySub(tagger));
-};
-var _elm_lang$window$Window$subMap = F2(
-	function (func, _p6) {
-		var _p7 = _p6;
-		return _elm_lang$window$Window$MySub(
-			function (_p8) {
-				return func(
-					_p7._0(_p8));
-			});
-	});
-_elm_lang$core$Native_Platform.effectManagers['Window'] = {pkg: 'elm-lang/window', init: _elm_lang$window$Window$init, onEffects: _elm_lang$window$Window$onEffects, onSelfMsg: _elm_lang$window$Window$onSelfMsg, tag: 'sub', subMap: _elm_lang$window$Window$subMap};
-
-var _rajasharan$yt_sync$Types$createModel = {vId: '', load: false, err: '', server: '', isPlaying: false, total: 0.0, width: 1000, cursorWidth: 0.0, seek: 0.0};
-var _rajasharan$yt_sync$Types$Model = F9(
-	function (a, b, c, d, e, f, g, h, i) {
-		return {vId: a, load: b, err: c, server: d, isPlaying: e, total: f, width: g, cursorWidth: h, seek: i};
+var _rajasharan$yt_sync$Types$createModel = {vId: '', load: false, err: '', server: '', isPlaying: false, total: 0.0, seek: 0.0};
+var _rajasharan$yt_sync$Types$Model = F7(
+	function (a, b, c, d, e, f, g) {
+		return {vId: a, load: b, err: c, server: d, isPlaying: e, total: f, seek: g};
 	});
 var _rajasharan$yt_sync$Types$SocketMsg = F4(
 	function (a, b, c, d) {
@@ -10303,10 +10181,6 @@ var _rajasharan$yt_sync$Types$UpdateSeekBar = function (a) {
 	return {ctor: 'UpdateSeekBar', _0: a};
 };
 var _rajasharan$yt_sync$Types$Tick = {ctor: 'Tick'};
-var _rajasharan$yt_sync$Types$Resize = {ctor: 'Resize'};
-var _rajasharan$yt_sync$Types$Width = function (a) {
-	return {ctor: 'Width', _0: a};
-};
 var _rajasharan$yt_sync$Types$Total = function (a) {
 	return {ctor: 'Total', _0: a};
 };
@@ -10814,7 +10688,7 @@ var _rajasharan$yt_sync$Update$update = F2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					A2(
 						_elm_lang$core$Debug$log,
-						'vId',
+						'LoadEvent',
 						_elm_lang$core$Native_Utils.update(
 							model,
 							{load: true})),
@@ -10887,29 +10761,7 @@ var _rajasharan$yt_sync$Update$update = F2(
 						model,
 						{total: _p1._0}),
 					_elm_lang$core$Native_List.fromArray(
-						[
-							_rajasharan$yt_sync$Ports$width(
-							{ctor: '_Tuple0'})
-						]));
-			case 'Width':
-				return A2(
-					_elm_lang$core$Platform_Cmd_ops['!'],
-					_elm_lang$core$Native_Utils.update(
-						model,
-						{width: _p1._0}),
-					_elm_lang$core$Native_List.fromArray(
 						[]));
-			case 'Resize':
-				return A2(
-					_elm_lang$core$Platform_Cmd_ops['!'],
-					model,
-					_elm_lang$core$Native_List.fromArray(
-						[
-							_rajasharan$yt_sync$Ports$width(
-							{ctor: '_Tuple0'}),
-							_rajasharan$yt_sync$Ports$time(
-							{ctor: '_Tuple0'})
-						]));
 			case 'Tick':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -10970,11 +10822,6 @@ var _rajasharan$yt_sync$Subs$subs = function (model) {
 				_rajasharan$yt_sync$Ports$paused(_rajasharan$yt_sync$Types$Pause),
 				_rajasharan$yt_sync$Ports$seeked(_rajasharan$yt_sync$Types$Seek),
 				_rajasharan$yt_sync$Ports$totaled(_rajasharan$yt_sync$Types$Total),
-				_rajasharan$yt_sync$Ports$seekbarWidth(_rajasharan$yt_sync$Types$Width),
-				_elm_lang$window$Window$resizes(
-				function (s) {
-					return _rajasharan$yt_sync$Types$Resize;
-				}),
 				times,
 				_rajasharan$yt_sync$Ports$getTime(_rajasharan$yt_sync$Types$UpdateSeekBar),
 				A2(_elm_lang$websocket$WebSocket$listen, model.server, _rajasharan$yt_sync$Types$Listen)

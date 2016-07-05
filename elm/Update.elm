@@ -22,7 +22,7 @@ update msg model =
 
         Load key ->
             if key == 13 then
-                Debug.log "vId" { model | load = True } ! [ Ports.load model.vId, send LoadVideo model ]
+                Debug.log "LoadEvent" { model | load = True } ! [ Ports.load model.vId, send LoadVideo model ]
             else
                 { model | load = False } ! []
 
@@ -36,9 +36,7 @@ update msg model =
         Play time -> { model | isPlaying = True } ! []
         Pause time -> { model | isPlaying = False } ! []
         Seek time -> model ! []
-        Total time -> { model | total = time } ! [ Ports.width () ]
-        Width w -> { model | width = w } ! []
-        Resize -> model ! [ Ports.width (), Ports.time () ]
+        Total time -> { model | total = time } ! []
         Tick -> model ! [ Ports.time () ]
         UpdateSeekBar sec -> { model | seek = sec } ! []
 
