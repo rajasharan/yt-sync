@@ -64,6 +64,10 @@ app.ports.time.subscribe(function() {
     }
 });
 
+app.ports.nextVideo.subscribe(function(index) {
+    nextVideo(index);
+});
+
 var firsttime = true;
 var videoId;
 app.ports.load.subscribe(function(vId) {
@@ -119,12 +123,19 @@ function onYouTubeIframeAPIReady() {
 function onPlayerReady(event) {
     console.log('READY NOW');
     loadVideoIdFirstTime();
+    win.player = player;
 }
 
 function onPlayerStateChange(event) {
     //console.log('STATE', playerState(event.data));
     try {
         app.ports.playing.send(event.data === YT.PlayerState.PLAYING);
+        if (event.data === YT.PlayerState.CUED) {
+            var videoList = player.getPlaylist().map(function(v, i) {
+                return { id: v, author: "", title: "", index: i };
+            });
+            app.ports.cued.send(videoList);
+        }
     } catch (e) {
         console.log(e);
         app.ports.errored.send(e.toString());
@@ -175,11 +186,16 @@ function time() {
 }
 
 function load(id) {
-    player.loadVideoById(id);
+    player.cuePlaylist({listType: 'search', list: id});
+    //player.loadVideoById(id);
 }
 
 function total() {
     return player.getDuration();
+}
+
+function nextVideo(index) {
+    player.playVideoAt(index);
 }
 
 win.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;

@@ -10162,10 +10162,24 @@ var _elm_lang$websocket$WebSocket$onSelfMsg = F3(
 	});
 _elm_lang$core$Native_Platform.effectManagers['WebSocket'] = {pkg: 'elm-lang/websocket', init: _elm_lang$websocket$WebSocket$init, onEffects: _elm_lang$websocket$WebSocket$onEffects, onSelfMsg: _elm_lang$websocket$WebSocket$onSelfMsg, tag: 'fx', cmdMap: _elm_lang$websocket$WebSocket$cmdMap, subMap: _elm_lang$websocket$WebSocket$subMap};
 
-var _rajasharan$yt_sync$Types$createModel = {vId: '', load: false, err: '', server: '', isPlaying: false, total: 0.0, seek: 0.0};
-var _rajasharan$yt_sync$Types$Model = F7(
-	function (a, b, c, d, e, f, g) {
-		return {vId: a, load: b, err: c, server: d, isPlaying: e, total: f, seek: g};
+var _rajasharan$yt_sync$Types$createModel = {
+	vId: '',
+	load: false,
+	err: '',
+	server: '',
+	isPlaying: false,
+	total: 0.0,
+	seek: 0.0,
+	cue: _elm_lang$core$Native_List.fromArray(
+		[])
+};
+var _rajasharan$yt_sync$Types$Model = F8(
+	function (a, b, c, d, e, f, g, h) {
+		return {vId: a, load: b, err: c, server: d, isPlaying: e, total: f, seek: g, cue: h};
+	});
+var _rajasharan$yt_sync$Types$Video = F4(
+	function (a, b, c, d) {
+		return {id: a, index: b, author: c, title: d};
 	});
 var _rajasharan$yt_sync$Types$SocketMsg = F4(
 	function (a, b, c, d) {
@@ -10200,6 +10214,12 @@ var _rajasharan$yt_sync$Types$Error = function (a) {
 	return {ctor: 'Error', _0: a};
 };
 var _rajasharan$yt_sync$Types$TogglePlay = {ctor: 'TogglePlay'};
+var _rajasharan$yt_sync$Types$SelectVideo = function (a) {
+	return {ctor: 'SelectVideo', _0: a};
+};
+var _rajasharan$yt_sync$Types$Cued = function (a) {
+	return {ctor: 'Cued', _0: a};
+};
 var _rajasharan$yt_sync$Types$Load = function (a) {
 	return {ctor: 'Load', _0: a};
 };
@@ -10270,6 +10290,36 @@ var _rajasharan$yt_sync$Ports$time = _elm_lang$core$Native_Platform.outgoingPort
 	function (v) {
 		return null;
 	});
+var _rajasharan$yt_sync$Ports$nextVideo = _elm_lang$core$Native_Platform.outgoingPort(
+	'nextVideo',
+	function (v) {
+		return v;
+	});
+var _rajasharan$yt_sync$Ports$cued = _elm_lang$core$Native_Platform.incomingPort(
+	'cued',
+	_elm_lang$core$Json_Decode$list(
+		A2(
+			_elm_lang$core$Json_Decode$andThen,
+			A2(_elm_lang$core$Json_Decode_ops[':='], 'id', _elm_lang$core$Json_Decode$string),
+			function (id) {
+				return A2(
+					_elm_lang$core$Json_Decode$andThen,
+					A2(_elm_lang$core$Json_Decode_ops[':='], 'index', _elm_lang$core$Json_Decode$int),
+					function (index) {
+						return A2(
+							_elm_lang$core$Json_Decode$andThen,
+							A2(_elm_lang$core$Json_Decode_ops[':='], 'author', _elm_lang$core$Json_Decode$string),
+							function (author) {
+								return A2(
+									_elm_lang$core$Json_Decode$andThen,
+									A2(_elm_lang$core$Json_Decode_ops[':='], 'title', _elm_lang$core$Json_Decode$string),
+									function (title) {
+										return _elm_lang$core$Json_Decode$succeed(
+											{id: id, index: index, author: author, title: title});
+									});
+							});
+					});
+			})));
 var _rajasharan$yt_sync$Ports$playing = _elm_lang$core$Native_Platform.incomingPort('playing', _elm_lang$core$Json_Decode$bool);
 var _rajasharan$yt_sync$Ports$played = _elm_lang$core$Native_Platform.incomingPort('played', _elm_lang$core$Json_Decode$float);
 var _rajasharan$yt_sync$Ports$paused = _elm_lang$core$Native_Platform.incomingPort('paused', _elm_lang$core$Json_Decode$float);
@@ -10538,23 +10588,12 @@ var _rajasharan$yt_sync$Views$header = function (model) {
 		_elm_lang$core$Native_List.fromArray(
 			[
 				A2(
-				_elm_lang$html$Html$button,
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html_Attributes$class('button is-info is-large'),
-						_elm_lang$html$Html_Attributes$disabled(true)
-					]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html$text('youtube link')
-					])),
-				A2(
 				_elm_lang$html$Html$input,
 				_elm_lang$core$Native_List.fromArray(
 					[
 						_elm_lang$html$Html_Attributes$class('input is-large is-expanded'),
 						_elm_lang$html$Html_Attributes$type$('text'),
-						_elm_lang$html$Html_Attributes$placeholder('Enter youtube link'),
+						_elm_lang$html$Html_Attributes$placeholder('Search Youtube Videos'),
 						_elm_lang$html$Html_Events$onInput(_rajasharan$yt_sync$Types$UrlInput),
 						A2(
 						_elm_lang$html$Html_Events$on,
@@ -10562,31 +10601,74 @@ var _rajasharan$yt_sync$Views$header = function (model) {
 						A2(_elm_lang$core$Json_Decode$map, _rajasharan$yt_sync$Types$Load, _elm_lang$html$Html_Events$keyCode))
 					]),
 				_elm_lang$core$Native_List.fromArray(
-					[]))
+					[])),
+				A2(
+				_elm_lang$html$Html$button,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class('button is-info is-large'),
+						_elm_lang$html$Html_Events$onClick(
+						_rajasharan$yt_sync$Types$Load(13))
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text('Youtube search')
+					]))
+			]));
+};
+var _rajasharan$yt_sync$Views$card = function (video) {
+	return A2(
+		_elm_lang$html$Html$div,
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$html$Html_Attributes$class('card'),
+				_elm_lang$html$Html_Events$onClick(
+				_rajasharan$yt_sync$Types$SelectVideo(video.index))
+			]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A2(
+				_elm_lang$html$Html$div,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class('card-image')
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						A2(
+						_elm_lang$html$Html$figure,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$class('image is-16by9')
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								A2(
+								_elm_lang$html$Html$img,
+								_elm_lang$core$Native_List.fromArray(
+									[
+										_elm_lang$html$Html_Attributes$src(
+										A2(
+											_elm_lang$core$Basics_ops['++'],
+											'https://img.youtube.com/vi/',
+											A2(_elm_lang$core$Basics_ops['++'], video.id, '/mqdefault.jpg')))
+									]),
+								_elm_lang$core$Native_List.fromArray(
+									[]))
+							]))
+					]))
 			]));
 };
 var _rajasharan$yt_sync$Views$view = function (model) {
+	var cards = A2(
+		_elm_lang$core$List$map,
+		function (vid) {
+			return _rajasharan$yt_sync$Views$card(vid);
+		},
+		model.cue);
 	var error_notification = (_elm_lang$core$Native_Utils.cmp(
 		_elm_lang$core$String$length(model.err),
 		0) > 0) ? 'notification is-danger' : '';
-	var attrs = _elm_lang$core$Native_List.fromArray(
-		[
-			_elm_lang$html$Html_Attributes$src(
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				'https://www.youtube.com/embed/',
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					model.vId,
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						'?enablejsapi=1',
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							'&controls=0',
-							A2(_elm_lang$core$Basics_ops['++'], '&fs=1', '&showinfo=1')))))),
-			_elm_lang$html$Html_Attributes$id('iframe')
-		]);
 	return A2(
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
@@ -10607,10 +10689,10 @@ var _rajasharan$yt_sync$Views$view = function (model) {
 						_elm_lang$html$Html$text(model.err)
 					])),
 				A2(
-				_elm_lang$html$Html$section,
+				_elm_lang$html$Html$div,
 				_elm_lang$core$Native_List.fromArray(
 					[
-						_elm_lang$html$Html_Attributes$class('hero')
+						_elm_lang$html$Html_Attributes$class('columns')
 					]),
 				_elm_lang$core$Native_List.fromArray(
 					[
@@ -10618,15 +10700,15 @@ var _rajasharan$yt_sync$Views$view = function (model) {
 						_elm_lang$html$Html$div,
 						_elm_lang$core$Native_List.fromArray(
 							[
-								_elm_lang$html$Html_Attributes$class('hero-body')
+								_elm_lang$html$Html_Attributes$class('column is-10')
 							]),
 						_elm_lang$core$Native_List.fromArray(
 							[
 								A2(
-								_elm_lang$html$Html$div,
+								_elm_lang$html$Html$section,
 								_elm_lang$core$Native_List.fromArray(
 									[
-										_elm_lang$html$Html_Attributes$class('container')
+										_elm_lang$html$Html_Attributes$class('hero')
 									]),
 								_elm_lang$core$Native_List.fromArray(
 									[
@@ -10634,9 +10716,7 @@ var _rajasharan$yt_sync$Views$view = function (model) {
 										_elm_lang$html$Html$div,
 										_elm_lang$core$Native_List.fromArray(
 											[
-												_elm_lang$html$Html_Attributes$id('video-wrapper'),
-												_elm_lang$html$Html_Attributes$class('video-wrapper'),
-												_elm_lang$html$Html_Events$onClick(_rajasharan$yt_sync$Types$TogglePlay)
+												_elm_lang$html$Html_Attributes$class('hero-body')
 											]),
 										_elm_lang$core$Native_List.fromArray(
 											[
@@ -10644,15 +10724,49 @@ var _rajasharan$yt_sync$Views$view = function (model) {
 												_elm_lang$html$Html$div,
 												_elm_lang$core$Native_List.fromArray(
 													[
-														_elm_lang$html$Html_Attributes$id('player')
+														_elm_lang$html$Html_Attributes$class('container')
 													]),
 												_elm_lang$core$Native_List.fromArray(
-													[]))
-											]))
+													[
+														A2(
+														_elm_lang$html$Html$div,
+														_elm_lang$core$Native_List.fromArray(
+															[
+																_elm_lang$html$Html_Attributes$id('video-wrapper'),
+																_elm_lang$html$Html_Attributes$class('video-wrapper'),
+																_elm_lang$html$Html_Events$onClick(_rajasharan$yt_sync$Types$TogglePlay)
+															]),
+														_elm_lang$core$Native_List.fromArray(
+															[
+																A2(
+																_elm_lang$html$Html$div,
+																_elm_lang$core$Native_List.fromArray(
+																	[
+																		_elm_lang$html$Html_Attributes$id('player')
+																	]),
+																_elm_lang$core$Native_List.fromArray(
+																	[]))
+															]))
+													]))
+											])),
+										_rajasharan$yt_sync$Views$playbar(model)
 									]))
+							])),
+						A2(
+						_elm_lang$html$Html$div,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$class('column is-2 video-list')
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								A2(
+								_elm_lang$html$Html$div,
+								_elm_lang$core$Native_List.fromArray(
+									[]),
+								cards)
 							]))
-					])),
-				_rajasharan$yt_sync$Views$playbar(model)
+					]))
 			]));
 };
 
@@ -10703,6 +10817,22 @@ var _rajasharan$yt_sync$Update$update = F2(
 						{load: false}),
 					_elm_lang$core$Native_List.fromArray(
 						[]));
+			case 'Cued':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{cue: _p1._0}),
+					_elm_lang$core$Native_List.fromArray(
+						[]));
+			case 'SelectVideo':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_rajasharan$yt_sync$Ports$nextVideo(_p1._0)
+						]));
 			case 'TogglePlay':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -10824,7 +10954,8 @@ var _rajasharan$yt_sync$Subs$subs = function (model) {
 				_rajasharan$yt_sync$Ports$totaled(_rajasharan$yt_sync$Types$Total),
 				times,
 				_rajasharan$yt_sync$Ports$getTime(_rajasharan$yt_sync$Types$UpdateSeekBar),
-				A2(_elm_lang$websocket$WebSocket$listen, model.server, _rajasharan$yt_sync$Types$Listen)
+				A2(_elm_lang$websocket$WebSocket$listen, model.server, _rajasharan$yt_sync$Types$Listen),
+				_rajasharan$yt_sync$Ports$cued(_rajasharan$yt_sync$Types$Cued)
 			]));
 };
 

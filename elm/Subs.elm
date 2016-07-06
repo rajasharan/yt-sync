@@ -25,4 +25,5 @@ subs model =
         , times
         , getTime UpdateSeekBar
         , listen model.server Listen
+        , cued Cued 
         ]

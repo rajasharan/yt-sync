@@ -5,6 +5,7 @@ import Html.Attributes as HA exposing (..)
 import Html.Events exposing (..)
 import Json.Decode as Json exposing (..)
 import String exposing (..)
+import List.Extra exposing (..)
 
 import Types exposing (..)
 
@@ -12,49 +13,64 @@ view : Model -> Html Msg
 view model =
     let
         --_ = Debug.log "view:model" model
-        attrs =
-            [ src <| "https://www.youtube.com/embed/"
-                  ++ model.vId
-                  ++ "?enablejsapi=1"
-                  ++ "&controls=0"
-                  ++ "&fs=1"
-                  ++ "&showinfo=1"
-            , id "iframe"
-            ]
-
         error_notification =
             if length model.err > 0 then
                 "notification is-danger"
             else
                 ""
-    in
+        cards = List.map (\vid -> card vid) model.cue
 
+    in
     div [class "container"]
       [ header model
       , Html.div [class error_notification] [Html.text model.err]
-      , section [class "hero"]
-          [ div [class "hero-body"]
-              [ div [class "container"]
-                  [ div [id "video-wrapper", class "video-wrapper", onClick TogglePlay]
-                      [ div [id "player"] [] ]
+      , div [class "columns"]
+          [ div [class "column is-10"]
+              [ section [class "hero"]
+                  [ div [class "hero-body"]
+                      [ div [class "container"]
+                          [ div [id "video-wrapper", class "video-wrapper", onClick TogglePlay]
+                              [ div [id "player"] [] ]
+                          ]
+                      ]
+                  , playbar model
                   ]
               ]
+          , div [class "column is-2 video-list"]
+              [ div [] cards ]
           ]
-        , playbar model
-      --, footer model
+      ]
+
+card : Video -> Html Msg
+card video =
+   div [class "card", onClick (SelectVideo video.index)]
+      [ div [class "card-image"]
+          [figure [class "image is-16by9"]
+            [img [src <| "https://img.youtube.com/vi/"++ video.id ++"/mqdefault.jpg"][]]
+          ] 
+      --, div [class "card-content"]
+          --[ div [class "media"]
+              --[ div [class "media-content"]
+                  --[ p [class "title is-5"] [text video.author]
+                  ----, p [class "subtitle is-6"] [text "@johnsmith"]
+                  --]
+              --]
+          --, div [class "content"]
+              --[text video.title]
+          --]
       ]
 
 header : Model -> Html Msg
 header model =
     p [class "control has-addons has-addons-centered nav nav-item"]
-      [ button [class "button is-info is-large", disabled True] [Html.text "youtube link"]
-      , input
+      [ input
           [ class "input is-large is-expanded"
           , type' "text"
-          , placeholder "Enter youtube link"
+          , placeholder "Search Youtube Videos"
           , onInput UrlInput
           , on "keypress" (Json.map Load keyCode)
           ] []
+      , button [class "button is-info is-large", onClick (Load 13)] [Html.text "Youtube search"]
       ]
 
 playbar : Model -> Html Msg

@@ -10,6 +10,14 @@ type alias Model =
     , isPlaying : Bool -- play/pause toggle
     , total : Float -- total playback time
     , seek : Float -- playback cursor position
+    , cue : List Video
+    }
+
+type alias Video =
+    { id : String
+    , index : Int
+    , author : String
+    , title : String
     }
 
 createModel : Model
@@ -21,10 +29,13 @@ createModel =
     , isPlaying = False
     , total = 0.0
     , seek = 0.0
+    , cue = []
     }
 
 type Msg = UrlInput String
          | Load Int
+         | Cued (List Video)
+         | SelectVideo Int
          | TogglePlay
          | Error String
          | PlayerState Bool
