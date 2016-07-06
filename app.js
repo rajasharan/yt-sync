@@ -57,7 +57,9 @@ app.ports.width.subscribe(function() {
 app.ports.time.subscribe(function() {
     try {
         var t = time();
-        app.ports.getTime.send(t);
+        if (t) {
+            app.ports.getTime.send(t);
+        }
     } catch (e) {
         console.log(e);
         app.ports.errored.send(e.toString());

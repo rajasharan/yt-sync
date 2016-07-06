@@ -22,6 +22,8 @@ decodeSocketMsg str model =
                        succeed PlayPause
                    else if contains s "SeekPosition" then
                        succeed SeekPosition
+                   else if contains s "NextVideo" then
+                       succeed NextVideo
                    else
                        fail "unknown SocketKind message"
                )
@@ -42,3 +44,4 @@ parse msg model =
         LoadVideo -> { model | vId = msg.vId, err = "" } ! [ Ports.load msg.vId ]
         PlayPause -> model ! [ if msg.play then Ports.pause () else Ports.play () ]
         SeekPosition -> { model | seek = msg.seek } ! [ Ports.seek msg.seek ]
+        NextVideo -> { model | vId = msg.vId } ! [ Ports.nextVideo <| Utils.toInt msg.vId ]

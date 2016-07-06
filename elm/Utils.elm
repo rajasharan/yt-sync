@@ -18,3 +18,12 @@ getVideoId url =
         head' ((getAt 1 <| split "v=" url) `Maybe.andThen` (\s -> getAt 0 (split "&" s)))
     else
         url
+
+toInt : String -> Int
+toInt str =
+    let
+        res = String.toInt str
+    in
+        case res of
+            Ok i -> i
+            Err err -> -1

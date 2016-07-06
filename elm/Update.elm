@@ -27,7 +27,10 @@ update msg model =
                 { model | load = False } ! []
 
         Cued list -> { model | cue = list } ! []
-        SelectVideo index -> model ! [ Ports.nextVideo index ]
+        SelectVideo index -> model
+                           ! [ Ports.nextVideo index
+                             , send NextVideo { model | vId = toString index }
+                             ]
 
         TogglePlay -> model
                     ! [ if model.isPlaying then Ports.pause () else Ports.play ()

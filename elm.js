@@ -10226,15 +10226,25 @@ var _rajasharan$yt_sync$Types$Load = function (a) {
 var _rajasharan$yt_sync$Types$UrlInput = function (a) {
 	return {ctor: 'UrlInput', _0: a};
 };
+var _rajasharan$yt_sync$Types$NextVideo = {ctor: 'NextVideo'};
 var _rajasharan$yt_sync$Types$SeekPosition = {ctor: 'SeekPosition'};
 var _rajasharan$yt_sync$Types$PlayPause = {ctor: 'PlayPause'};
 var _rajasharan$yt_sync$Types$LoadVideo = {ctor: 'LoadVideo'};
 var _rajasharan$yt_sync$Types$Connection = {ctor: 'Connection'};
 
-var _rajasharan$yt_sync$Utils$head$ = function (maybe) {
-	var _p0 = maybe;
-	if (_p0.ctor === 'Just') {
+var _rajasharan$yt_sync$Utils$toInt = function (str) {
+	var res = _elm_lang$core$String$toInt(str);
+	var _p0 = res;
+	if (_p0.ctor === 'Ok') {
 		return _p0._0;
+	} else {
+		return -1;
+	}
+};
+var _rajasharan$yt_sync$Utils$head$ = function (maybe) {
+	var _p1 = maybe;
+	if (_p1.ctor === 'Just') {
+		return _p1._0;
 	} else {
 		return '';
 	}
@@ -10359,7 +10369,7 @@ var _rajasharan$yt_sync$Decoders$parse = F2(
 							{ctor: '_Tuple0'}) : _rajasharan$yt_sync$Ports$play(
 							{ctor: '_Tuple0'})
 						]));
-			default:
+			case 'SeekPosition':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
@@ -10368,6 +10378,17 @@ var _rajasharan$yt_sync$Decoders$parse = F2(
 					_elm_lang$core$Native_List.fromArray(
 						[
 							_rajasharan$yt_sync$Ports$seek(msg.seek)
+						]));
+			default:
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{vId: msg.vId}),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_rajasharan$yt_sync$Ports$nextVideo(
+							_rajasharan$yt_sync$Utils$toInt(msg.vId))
 						]));
 		}
 	});
@@ -10380,7 +10401,7 @@ var _rajasharan$yt_sync$Decoders$decodeSocketMsg = F2(
 			_elm_lang$core$Json_Decode$andThen,
 			A2(_elm_lang$core$Json_Decode_ops[':='], 'kind', _elm_lang$core$Json_Decode$string),
 			function (s) {
-				return A2(_elm_lang$core$String$contains, s, 'Connection') ? _elm_lang$core$Json_Decode$succeed(_rajasharan$yt_sync$Types$Connection) : (A2(_elm_lang$core$String$contains, s, 'LoadVideo') ? _elm_lang$core$Json_Decode$succeed(_rajasharan$yt_sync$Types$LoadVideo) : (A2(_elm_lang$core$String$contains, s, 'PlayPause') ? _elm_lang$core$Json_Decode$succeed(_rajasharan$yt_sync$Types$PlayPause) : (A2(_elm_lang$core$String$contains, s, 'SeekPosition') ? _elm_lang$core$Json_Decode$succeed(_rajasharan$yt_sync$Types$SeekPosition) : _elm_lang$core$Json_Decode$fail('unknown SocketKind message'))));
+				return A2(_elm_lang$core$String$contains, s, 'Connection') ? _elm_lang$core$Json_Decode$succeed(_rajasharan$yt_sync$Types$Connection) : (A2(_elm_lang$core$String$contains, s, 'LoadVideo') ? _elm_lang$core$Json_Decode$succeed(_rajasharan$yt_sync$Types$LoadVideo) : (A2(_elm_lang$core$String$contains, s, 'PlayPause') ? _elm_lang$core$Json_Decode$succeed(_rajasharan$yt_sync$Types$PlayPause) : (A2(_elm_lang$core$String$contains, s, 'SeekPosition') ? _elm_lang$core$Json_Decode$succeed(_rajasharan$yt_sync$Types$SeekPosition) : (A2(_elm_lang$core$String$contains, s, 'NextVideo') ? _elm_lang$core$Json_Decode$succeed(_rajasharan$yt_sync$Types$NextVideo) : _elm_lang$core$Json_Decode$fail('unknown SocketKind message')))));
 			});
 		var socketMsgDecoder = A5(_elm_lang$core$Json_Decode$object4, _rajasharan$yt_sync$Types$SocketMsg, kind, vId, play, seek);
 		var value = A2(_elm_lang$core$Json_Decode$decodeString, socketMsgDecoder, str);
@@ -10449,12 +10470,12 @@ var _rajasharan$yt_sync$Encoders$encodeSocketMsg = function (msg) {
 							{
 							ctor: '_Tuple2',
 							_0: 'play',
-							_1: _elm_lang$core$Json_Encode$bool(false)
+							_1: _elm_lang$core$Json_Encode$bool(msg.play)
 						},
 							{
 							ctor: '_Tuple2',
 							_0: 'seek',
-							_1: _elm_lang$core$Json_Encode$float(0.0)
+							_1: _elm_lang$core$Json_Encode$float(msg.seek)
 						}
 						])));
 		case 'PlayPause':
@@ -10472,7 +10493,7 @@ var _rajasharan$yt_sync$Encoders$encodeSocketMsg = function (msg) {
 							{
 							ctor: '_Tuple2',
 							_0: 'url',
-							_1: _elm_lang$core$Json_Encode$string('')
+							_1: _elm_lang$core$Json_Encode$string(msg.vId)
 						},
 							{
 							ctor: '_Tuple2',
@@ -10482,10 +10503,10 @@ var _rajasharan$yt_sync$Encoders$encodeSocketMsg = function (msg) {
 							{
 							ctor: '_Tuple2',
 							_0: 'seek',
-							_1: _elm_lang$core$Json_Encode$float(0.0)
+							_1: _elm_lang$core$Json_Encode$float(msg.seek)
 						}
 						])));
-		default:
+		case 'SeekPosition':
 			return A2(
 				_elm_lang$core$Json_Encode$encode,
 				0,
@@ -10500,12 +10521,40 @@ var _rajasharan$yt_sync$Encoders$encodeSocketMsg = function (msg) {
 							{
 							ctor: '_Tuple2',
 							_0: 'url',
-							_1: _elm_lang$core$Json_Encode$string('')
+							_1: _elm_lang$core$Json_Encode$string(msg.vId)
 						},
 							{
 							ctor: '_Tuple2',
 							_0: 'play',
-							_1: _elm_lang$core$Json_Encode$bool(false)
+							_1: _elm_lang$core$Json_Encode$bool(msg.play)
+						},
+							{
+							ctor: '_Tuple2',
+							_0: 'seek',
+							_1: _elm_lang$core$Json_Encode$float(msg.seek)
+						}
+						])));
+		default:
+			return A2(
+				_elm_lang$core$Json_Encode$encode,
+				0,
+				_elm_lang$core$Json_Encode$object(
+					_elm_lang$core$Native_List.fromArray(
+						[
+							{
+							ctor: '_Tuple2',
+							_0: 'kind',
+							_1: _elm_lang$core$Json_Encode$string('NextVideo')
+						},
+							{
+							ctor: '_Tuple2',
+							_0: 'url',
+							_1: _elm_lang$core$Json_Encode$string(msg.vId)
+						},
+							{
+							ctor: '_Tuple2',
+							_0: 'play',
+							_1: _elm_lang$core$Json_Encode$bool(msg.play)
 						},
 							{
 							ctor: '_Tuple2',
@@ -10826,12 +10875,21 @@ var _rajasharan$yt_sync$Update$update = F2(
 					_elm_lang$core$Native_List.fromArray(
 						[]));
 			case 'SelectVideo':
+				var _p2 = _p1._0;
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					model,
 					_elm_lang$core$Native_List.fromArray(
 						[
-							_rajasharan$yt_sync$Ports$nextVideo(_p1._0)
+							_rajasharan$yt_sync$Ports$nextVideo(_p2),
+							A2(
+							_rajasharan$yt_sync$Encoders$send,
+							_rajasharan$yt_sync$Types$NextVideo,
+							_elm_lang$core$Native_Utils.update(
+								model,
+								{
+									vId: _elm_lang$core$Basics$toString(_p2)
+								}))
 						]));
 			case 'TogglePlay':
 				return A2(
@@ -10910,25 +10968,25 @@ var _rajasharan$yt_sync$Update$update = F2(
 					_elm_lang$core$Native_List.fromArray(
 						[]));
 			case 'SeekBar':
-				var _p2 = _p1._0;
+				var _p3 = _p1._0;
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						model,
 						{
-							seek: secs(_p2)
+							seek: secs(_p3)
 						}),
 					_elm_lang$core$Native_List.fromArray(
 						[
 							_rajasharan$yt_sync$Ports$seek(
-							secs(_p2)),
+							secs(_p3)),
 							A2(
 							_rajasharan$yt_sync$Encoders$send,
 							_rajasharan$yt_sync$Types$SeekPosition,
 							_elm_lang$core$Native_Utils.update(
 								model,
 								{
-									seek: secs(_p2)
+									seek: secs(_p3)
 								}))
 						]));
 			default:

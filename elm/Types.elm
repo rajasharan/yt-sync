@@ -55,4 +55,9 @@ type alias SocketMsg =
     , seek : Float
     }
 
-type SocketKind = Connection | LoadVideo | PlayPause | SeekPosition
+type SocketKind
+    = Connection
+    | LoadVideo
+    | PlayPause
+    | SeekPosition
+    | NextVideo -- reuse vId for #videoIndex
