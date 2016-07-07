@@ -11,8 +11,16 @@ import Types exposing (..)
 
 view : Model -> Html Msg
 view model =
+    --mainLayout model
+    div []
+    [ banner
+    , ribbon
+    , mainLayout model    
+    ]
+
+mainLayout : Model -> Html Msg
+mainLayout model =
     let
-        --_ = Debug.log "view:model" model
         error_notification =
             if length model.err > 0 then
                 "notification is-danger"
@@ -26,15 +34,9 @@ view model =
       , Html.div [class error_notification] [Html.text model.err]
       , div [class "columns"]
           [ div [class "column is-10"]
-              [ section [class "hero"]
-                  [ div [class "hero-body"]
-                      [ div [class "container"]
-                          [ div [id "video-wrapper", class "video-wrapper", onClick TogglePlay]
-                              [ div [id "player"] [] ]
-                          ]
-                      ]
-                  , playbar model
-                  ]
+              [ div [id "video-wrapper", class "video-wrapper", onClick TogglePlay]
+                  [ div [id "player"] [] ]
+              , playbar model
               ]
           , div [class "column is-2 video-list"]
               [ div [] cards ]
@@ -70,11 +72,15 @@ header model =
           , onInput UrlInput
           , on "keypress" (Json.map Load keyCode)
           ] []
-      , button [class "button is-info is-large", onClick (Load 13)] [Html.text "Youtube search"]
+      , button [class "button is-info is-large", onClick (Load 13)] [Html.text "Youtube sync"]
       ]
 
 playbar : Model -> Html Msg
 playbar model =
+  let
+      curr = (toString <| round model.seek) ++ " sec / "
+      total = (toString <| round model.total) ++ " sec"
+  in
   p [class "control"]
     [ input [ type' "range"
             , class "input is-expanded hint--bottom hint--bounce"
@@ -83,10 +89,30 @@ playbar model =
             , step "1"
             , defaultValue "0"
             , HA.value <| toString model.seek
-            , attribute "aria-label" (toString model.seek ++ " sec / " ++ toString model.total ++ " sec")
+            , attribute "aria-label" <| curr ++ total
             , onInput SeekBar
             ] []
     ]
+
+banner : Html Msg
+banner =
+    section [class "hero is-primary is-bold"]
+      [ div [class "hero-body"]
+          [ div [class "container"]
+              [ h1 [class "title"] [text "Youtube Sync & Watch togther"]
+              , p [class "subtitle is-5"] [text "(broadcast via WebSockets)"]
+              ]
+          ]
+      ]
+
+ribbon : Html Msg
+ribbon =
+    a [href "https://github.com/rajasharan/yt-sync"]
+      [ img [ style [("position", "absolute"), ("top", "0"), ("right", "0"), ("border", "0")]
+            , src "https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"
+            , alt "Fork me on GitHub"
+            ] []
+      ]
 
 footer : Model -> Html Msg
 footer model =

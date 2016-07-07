@@ -1,6 +1,6 @@
 # Youtube Sync & Watch together
 
-### [Live Demo Link](http://rajasharan.github.io/yt-sync)
+### [Live Demo Link](https://rajasharan.github.io/yt-sync)
 
 ### Dev setup
 ```sh
@@ -17,12 +17,12 @@ Listening on http://localhost:8000/
 $ elm make Main.elm --output elm.js
 
 # Start local server
-# lite-server
+$ lite-server
 # OR
-# python -m SimpleHTTPServer 3002
+$ python -m SimpleHTTPServer 3002
 ```
 
-### Broadcast to Multiple Users via WebSockets
+### Start WebSocket server
 ```sh
 $ cd server
 $ npm install
@@ -33,14 +33,10 @@ yt-sync websocket opened on port 5000
 ## Connect to WebSocket Server
 ```html
 Now append the <server-ip>:<port> as a hash Location
-For e.g: http://rajasharan.github.io/yt-sync/#ws://192.168.X.XX:3000
-```
+For e.g: if the elm frontend server is running in localhost:2000
+and websocket server in localhost:3000 then url is: http://localhost:2000/#ws://localhost:3000
 
-```html
-Or if the elm frontend server is running in localhost:2000 and websocket server in localhost:3000
-then url is: http://localhost:2000/#ws://localhost:3000
-
-Open in multiple browsers to test.</port>
+Open in multiple browsers to test.
 ```
 
 ### [License](/LICENSE)
